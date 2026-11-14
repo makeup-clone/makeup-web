@@ -28,8 +28,11 @@ export const TestCategoryComponent = () => {
     };
 
     const CategoryList: React.FC = () => {
-        // Викликаємо ваш RTK Query хук
-        const { data: categories, isLoading, error } = useGetCategoriesQuery();
+        // useGetCategoriesQuery(undefined, {pollingInterval: 5000})
+        // При помилці отримання даних, веб додаток буде надсилати повторні запити на сервер в задоному інтервалі (5000 - 5 сек.)
+        // Додано як приклад того, як можна получити дані із сервера, якщо той був не запущений.
+        // При запуску, веб додаток сам надішле запит на отримання данних, без перезавантаження сторінки, або переадрисації.
+        const { data: categories, isLoading, error } = useGetCategoriesQuery(undefined, {pollingInterval: 5000});
 
         if (isLoading) {
             return <div className="p-5 text-[#666]">Завантаження категорій з бекенду...</div>;
