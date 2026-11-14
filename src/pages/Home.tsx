@@ -1,9 +1,12 @@
 import {TestCategoryComponent} from "../components/TestCategoryComponent.tsx";
 
-export const Home = () => {
+const Home = () => {
     return (
         <>
+            <h1 className={"text-center py-5 text-xl"}>Головна сторінка</h1>
             <TestCategoryComponent/>
         </>
     )
 }
+
+export default Home;

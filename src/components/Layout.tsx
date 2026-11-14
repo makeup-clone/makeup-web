@@ -1,11 +1,15 @@
 import { Outlet} from "react-router";
+import Header from "./Header.tsx";
 
-export const Layout =()=> {
+const Layout =()=> {
     return (
-        <div>
-            <main>
+        <div className={"bg-gray-200 min-h-screen"}>
+            <main className={"px-8 flex-1"}>
+                <Header/>
                 <Outlet />
             </main>
         </div>
     );
 }
+
+export default Layout;
