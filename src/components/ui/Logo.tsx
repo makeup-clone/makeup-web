@@ -1,8 +1,10 @@
+import logoSrc from '../../assets/makeup-logo.png'
+
 const Logo = () => {
     return (
         <>
-            <div className={"flex justify-center items-center hover:cursor-pointer bg-gray-400 w-14 h-14 "}>
-                лого
+            <div className={"flex justify-start items-center hover:cursor-pointer"}>
+                <img src={logoSrc} className={'max-h-14 max-w-[200px]'} alt="logo" />
             </div>
         </>
     )

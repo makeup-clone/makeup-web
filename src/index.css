@@ -1,1 +1,40 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: 'Bodoni Moda';
+    src: url('/src/assets/fonts/BodoniModa-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Bodoni Moda';
+    src: url('/src/assets/fonts/BodoniModa-Italic-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 400 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Manrope';
+    src: url('/src/assets/fonts/Manrope-VariableFont_wght.ttf') format('truetype');
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@theme {
+    --font-bodoni: "Bodoni Moda", serif;
+    --font-manrope: "Manrope", sans-serif;
+    --color-olive: #414A35;
+    --color-cream: #F1E8DA;
+}
+
+@layer base {
+    html, body {
+        background-color: var(--color-cream);
+        margin: 0;
+        padding: 0;
+    }
+}
