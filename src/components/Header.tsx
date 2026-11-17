@@ -8,7 +8,7 @@ const Header = () => {
         <>
             <header>
                 <div className={"flex justify-around items-center py-4 border-b-2 border-gray-800"}>
-                    <div className={" flex-1 pr-2 h-full"}>
+                    <div className={" flex-3 pr-2 h-full"}>
                         <Logo/>
                     </div>
                     <div className={" flex justify-center items-center flex-4 px-2 h-14"}>
