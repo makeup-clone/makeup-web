@@ -5,7 +5,7 @@ const SearchBar = () => {
                 <input
                     type="text"
                     placeholder="Пошук..."
-                    className="w-full min-w-24 px-5 py-1 text-sm bg-transparent border border-gray-400 rounded-full focus:outline-none focus:ring-2  focus:ring-gray-300 focus:border-transparent transition-all"
+                    className="w-full min-w-24 px-5 py-1 text-sm bg-transparent border border-gray-400 rounded-full focus:outline-none focus:ring-2  focus:text-olive focus:border-transparent transition-all"
                 />
             </div>
         </>
