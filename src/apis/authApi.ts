@@ -1,13 +1,13 @@
-import type {IRegisterRequest} from "../interfaces/IAuth/IRegisterRequest.ts";
+// import type {IRegisterRequest} from "../interfaces/IAuth/IRegisterRequest.ts";
 import type {ILoginRequest} from "../interfaces/IAuth/ILoginRequest.ts";
 import type {IProfile} from "../interfaces/IAuth/IProfile.ts";
 import {baseApi} from "./baseApi.ts";
 
 export const authApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
-        register: build.mutation<void, IRegisterRequest>({
+        register: build.mutation<void, FormData>({
             query: (body) => ({
-                url: 'register',
+                url: 'auth/register',
                 method: 'POST',
                 body,
             }),
@@ -16,7 +16,7 @@ export const authApi = baseApi.injectEndpoints({
 
         login: build.mutation<void, ILoginRequest>({
             query: (body) => ({
-                url: 'login',
+                url: 'auth/login',
                 method: 'POST',
                 body,
             }),
@@ -25,14 +25,14 @@ export const authApi = baseApi.injectEndpoints({
 
         logout: build.mutation<void, void>({
             query: () => ({
-                url: 'logout',
+                url: 'auth/logout',
                 method: 'POST',
             }),
             invalidatesTags: ['Auth']
         }),
 
         profile: build.query<IProfile, void>({
-            query: () => 'profile',
+            query: () => 'auth/profile',
             providesTags: ['Auth']
         }),
     }),
