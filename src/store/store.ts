@@ -1,6 +1,6 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
-import {categoryApi} from "../services/categoryService.ts";
-import {authApi} from "../services/authService.ts";
+import {categoryApi} from "../apis/categoryApi.ts";
+import {authApi} from "../apis/authApi.ts";
 
 const rootReducer = combineReducers({
     //приклад під'єднання апі
