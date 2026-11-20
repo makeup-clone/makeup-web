@@ -1,20 +1,15 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
-import {categoryApi} from "../services/categoryService.ts";
+import {baseApi} from "../apis/baseApi.ts";
 
 const rootReducer = combineReducers({
-    //приклад під'єднання апі
-    // [authApi.reducerPath]: authApi.reducer,
-    [categoryApi.reducerPath]: categoryApi.reducer,
-
+    [baseApi.reducerPath]: baseApi.reducer,
 });
 
 export const store = configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(
-            // приклад під'єднання middleware
-            // authApi.middleware,
-            categoryApi.middleware,
+            baseApi.middleware
         ),
 });
 

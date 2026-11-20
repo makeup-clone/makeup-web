@@ -1,5 +1,5 @@
 import type {ICategory} from "../interfaces/ICategory.ts";
-import {useGetCategoriesQuery} from "../services/categoryService.ts";
+import {useGetCategoriesQuery} from "../apis/categoryApi.ts";
 
 export const TestCategoryComponent = () => {
     const CategoryItem: React.FC<{ category: ICategory }> = ({ category }) => {
