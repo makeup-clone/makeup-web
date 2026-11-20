@@ -1,16 +1,9 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import APP_ENV from "../env";
 import type {IRegisterRequest} from "../interfaces/IAuth/IRegisterRequest.ts";
 import type {ILoginRequest} from "../interfaces/IAuth/ILoginRequest.ts";
 import type {IProfile} from "../interfaces/IAuth/IProfile.ts";
+import {baseApi} from "./baseApi.ts";
 
-export const authApi = createApi({
-    reducerPath: 'authApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: `${APP_ENV.API_BASE_URL}/api/auth/`,
-        credentials: 'include',
-    }),
-    tagTypes: ['Auth'],
+export const authApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         register: build.mutation<void, IRegisterRequest>({
             query: (body) => ({
