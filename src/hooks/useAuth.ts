@@ -10,11 +10,15 @@ export const useAuth = () => {
     } = useProfileQuery();
 
     const isAuthenticated = Boolean(user) && !error;
-
+    const isAdmin = Boolean(
+        isAuthenticated &&
+        user?.roles?.includes("admin")
+    );
 
     return {
         user: isAuthenticated ? user : undefined,
         isAuthenticated,
+        isAdmin,
         isLoading,
         isFetching,
         error,
