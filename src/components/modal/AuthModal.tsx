@@ -1,8 +1,13 @@
-import {useEffect} from "react";
-import {useAuthModal} from "../../hooks/useAuthModal.ts";
+import { useEffect, useState } from "react";
+import { useAuthModal } from "../../hooks/useAuthModal.ts";
+import {AuthInput} from "../AuthInput.tsx";
 
 export const AuthModal = () => {
     const { mode, isOpen, closeModal, setMode, authSuccess } = useAuthModal();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -23,75 +28,159 @@ export const AuthModal = () => {
 
     const isLogin = mode === "login";
 
+    const resetForm = () => {
+        setEmail("");
+        setPassword("");
+        setName("");
+        setRememberMe(false);
+    };
+
+    const handleClose = () => {
+        resetForm();
+        closeModal();
+    };
+
+    const handleModeSwitch = (nextMode: "login" | "register") => {
+        resetForm();
+        setMode(nextMode);
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        // Тут буде твоя RTK Query мутація логіну або реєстрації
+        authSuccess();
+    };
+
     return (
         <div
-            onClick={closeModal}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+            onClick={handleClose}
+            className="font-manrope fixed inset-0 z-50 flex items-center justify-center bg-black/25 px-4 backdrop-blur-[1px]"
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-lg"
+                className="relative w-full max-w-[440px] bg-white px-10 py-9 shadow-sm"
             >
                 <button
                     type="button"
-                    onClick={closeModal}
+                    onClick={handleClose}
                     aria-label="Закрити"
-                    className="absolute right-4 top-4 text-neutral-500 hover:text-neutral-900"
+                    className="absolute right-4 top-4 px-2 py-1 text-sm text-gray-500 transition hover:text-gray-800"
                 >
                     ✕
                 </button>
 
-                <h2 className="text-center text-xl font-semibold text-neutral-900">
+                <h2 className="text-center text-xl font-medium tracking-tight text-[#1A1A18]">
                     {isLogin ? "Увійти до особистого кабінету" : "Створити акаунт"}
                 </h2>
 
-                {/* Форма входу / реєстрації */}
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        // Тут буде твоя RTK Query мутація логіну або реєстрації
-                        authSuccess();
+                {/* Болванка для входу через Google */}
+                <button
+                    type="button"
+                    onClick={() => {
+                        // TODO: логіка входу через Google
                     }}
-                    className="mt-5 flex flex-col gap-3"
+                    className="mt-6 flex h-11 w-full items-center justify-center rounded-full border bg-white px-5 text-sm transition hover:bg-[#F3F1EC] hover:cursor-pointer"
                 >
+                    Увійти через Google
+                </button>
+
+                <div className="my-3 text-center text-sm text-gray-700">або</div>
+
+                <form onSubmit={handleSubmit} className="flex flex-col">
                     {!isLogin && (
-                        <input
+                        <AuthInput
+                            containerClassName="mb-4"
+                            label="Ім'я"
                             type="text"
                             required
-                            placeholder="Ім'я"
-                            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                         />
                     )}
 
-                    <input
+                    <AuthInput
+                        label="Електронна пошта"
+                        className="autofill:shadow-[inset_0_0_0_1000px_#F3F1EC]"
                         type="email"
                         required
-                        placeholder="Електронна пошта"
-                        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
 
-                    <input
+                    <AuthInput
+                        containerClassName="mt-4"
+                        className="autofill:shadow-[inset_0_0_0_1000px_#F3F1EC]"
+                        label="Пароль"
                         type="password"
                         required
-                        placeholder="Пароль"
-                        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
+
+                    {/*Шаблонна кнопка для відновлення пароля*/}
+                    {isLogin && (
+                        <div className="mt-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    // TODO: відкриття відновлення пароля
+                                }}
+                                className="text-xs text-gray-600 hover:text-gray-800 hover:underline hover:cursor-pointer"
+                            >
+                                Забули пароль?
+                            </button>
+                        </div>
+                    )}
+
 
                     <button
                         type="submit"
-                        className="mt-2 w-full rounded-lg bg-neutral-900 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+                        className="mt-5 flex h-11 w-full items-center justify-center rounded-full bg-olive px-5 text-sm text-white font-medium transition hover:bg-olive-600 hover:cursor-pointer"
                     >
                         {isLogin ? "Увійти" : "Зареєструватися"}
                     </button>
 
-                    <p className="mt-2 text-center text-xs text-neutral-600">
+                    {/*Шаблонна кнопка запам'ятати мене*/}
+                    {isLogin && (
+                        <label className="mt-4 flex cursor-pointer items-center gap-3 text-sm font-medium">
+                            <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
+                                <input
+                                    type="checkbox"
+                                    checked={rememberMe}
+                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                    className="peer sr-only"
+                                />
+                                <span className="flex h-5 w-5 items-center justify-center rounded-md border-[1.5px] border-gray-800 bg-transparent transition-colors peer-checked:border-olive peer-checked:bg-olive peer-focus-visible:ring-2 peer-focus-visible:ring-olive/40">
+                                    <svg
+                                        viewBox="0 0 14 14"
+                                        fill="none"
+                                        aria-hidden="true"
+                                        className={`h-3.5 w-3.5 text-white transition-opacity ${
+                                            rememberMe ? "opacity-100" : "opacity-0"
+                                        }`}
+                                    >
+                                        <path
+                                            d="M2.5 7.5L5.5 10.5L11.5 3.5"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span>Запам&apos;ятати мене</span>
+                        </label>
+                    )}
+
+                    <p className="mt-6 text-center text-xs font-medium">
                         {isLogin ? (
                             <>
                                 Немає облікового запису?{" "}
                                 <button
                                     type="button"
-                                    onClick={() => setMode("register")}
-                                    className="font-medium text-neutral-900 underline"
+                                    onClick={() => handleModeSwitch("register")}
+                                    className="text-gray-600 transition hover:text-gray-800 hover:cursor-pointer"
                                 >
                                     Зареєструватися
                                 </button>
@@ -101,8 +190,8 @@ export const AuthModal = () => {
                                 Вже є обліковий запис?{" "}
                                 <button
                                     type="button"
-                                    onClick={() => setMode("login")}
-                                    className="font-medium text-neutral-900 underline"
+                                    onClick={() => handleModeSwitch("login")}
+                                    className="text-gray-600 transition hover:text-gray-800 hover:cursor-pointer"
                                 >
                                     Увійти
                                 </button>
