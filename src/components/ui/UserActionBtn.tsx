@@ -1,11 +1,12 @@
 interface UserActionProps {
-    children: React.ReactNode;
+    children: React.ReactNode,
+    onClick?: () => void,
 }
 
-const UserActionBtn = ( {children}:UserActionProps ) => {
+const UserActionBtn = ( {children, onClick}:UserActionProps ) => {
     return (
         <>
-            <button className="w-10 h-10 bg-olive hover:bg-olive-600 hover:cursor-pointer transition-colors flex items-center justify-center ">
+            <button onClick={onClick} className="w-10 h-10 bg-olive hover:bg-olive-600 hover:cursor-pointer transition-colors flex items-center justify-center ">
                 {children}
             </button>
         </>
