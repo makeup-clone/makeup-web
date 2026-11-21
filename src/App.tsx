@@ -14,7 +14,6 @@ function App() {
             <Routes>
                 <Route path="/" element={<Layout/>}>
                     <Route index element={<Home/>} />
-                    <Route path="/catalog" element={<Catalog/>} />
                     <Route path="/about-us" element={<AboutUs/>} />
                     <Route path="/contacts" element={<Contacts/>} />
 
@@ -24,6 +23,7 @@ function App() {
 
                     <Route element={<PrivateRoute/>}>
                         {/*Захищений маршрут від авторизованих коритсувачів*/}
+                        <Route path="/catalog" element={<Catalog/>} />
                     </Route>
 
                     <Route element={<AdminRoute/>}>
