@@ -55,7 +55,7 @@ export const AuthInput = ({
                 id={inputId}
                 aria-invalid={hasError}
                 aria-describedby={describedBy}
-                className={`h-11 w-full rounded-full border bg-white px-4 text-sm text-black outline-none transition-colors ${
+                className={`h-11 w-full rounded-full border bg-white px-4 text-sm text-black outline-none transition-colors autofill:shadow-[inset_0_0_0_1000px_var(--color-cream-light)] ${
                     hasError
                         ? "border-red-500 focus:inset-ring-1 focus:inset-ring-red-500"
                         : "border-black focus:inset-ring-1 focus:inset-ring-black"
