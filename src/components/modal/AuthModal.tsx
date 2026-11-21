@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { useAuthModal } from "../../hooks/useAuthModal.ts";
 import {AuthInput} from "../AuthInput.tsx";
+import {CheckboxField} from "../CheckboxField.tsx";
 
 export const AuthModal = () => {
     const { mode, isOpen, closeModal, setMode, authSuccess } = useAuthModal();
     const [email, setEmail] = useState("");
+    // поки, що помилки на стадії розробки і повядять себе місцями не коректно, але для нагдядного бачення, помилки зарання прописані
+    const [emailError, setEmailError] = useState<string | undefined>("Невірний формат пошти");
     const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState<string | undefined>("Невірний пароль");
     const [name, setName] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
 
@@ -104,7 +108,11 @@ export const AuthModal = () => {
                         type="email"
                         required
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (emailError) setEmailError(undefined);
+                        }}
+                        error={emailError}
                     />
 
                     <AuthInput
@@ -114,7 +122,11 @@ export const AuthModal = () => {
                         type="password"
                         required
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            if (passwordError) setPasswordError(undefined);
+                        }}
+                        error={passwordError}
                     />
 
                     {/*Шаблонна кнопка для відновлення пароля*/}
@@ -142,36 +154,14 @@ export const AuthModal = () => {
 
                     {/*Шаблонна кнопка запам'ятати мене*/}
                     {isLogin && (
-                        <label className="mt-4 flex cursor-pointer items-center gap-3 text-sm font-medium">
-                            <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
-                                <input
-                                    type="checkbox"
-                                    checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)}
-                                    className="peer sr-only"
-                                />
-                                <span className="flex h-5 w-5 items-center justify-center rounded-md border-[1.5px] border-gray-800 bg-transparent transition-colors peer-checked:border-olive peer-checked:bg-olive peer-focus-visible:ring-2 peer-focus-visible:ring-olive/40">
-                                    <svg
-                                        viewBox="0 0 14 14"
-                                        fill="none"
-                                        aria-hidden="true"
-                                        className={`h-3.5 w-3.5 text-white transition-opacity ${
-                                            rememberMe ? "opacity-100" : "opacity-0"
-                                        }`}
-                                    >
-                                        <path
-                                            d="M2.5 7.5L5.5 10.5L11.5 3.5"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </span>
-                            </span>
-                            <span>Запам&apos;ятати мене</span>
-                        </label>
+                        <CheckboxField
+                            containerClassName="mt-4"
+                            label={<span>Запам&apos;ятати мене</span>}
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                        />
                     )}
+
 
                     <p className="mt-6 text-center text-xs font-medium">
                         {isLogin ? (
