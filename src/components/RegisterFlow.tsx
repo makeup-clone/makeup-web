@@ -207,6 +207,7 @@ export const RegisterFlow = ({
                                     clearFieldError("firstName");
                                 }}
                                 error={errorsFormData.firstName}
+                                shakeKey={shakeKey}
                             />
 
                             <AuthInput
@@ -220,6 +221,7 @@ export const RegisterFlow = ({
                                     clearFieldError("lastName");
                                 }}
                                 error={errorsFormData.lastName}
+                                shakeKey={shakeKey}
                             />
 
                             <AuthInput
@@ -233,6 +235,7 @@ export const RegisterFlow = ({
                                     clearFieldError("email");
                                 }}
                                 error={errorsFormData.email}
+                                shakeKey={shakeKey}
                             />
                         </form>
                     </div>

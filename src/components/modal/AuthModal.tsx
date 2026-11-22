@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import {type MouseEvent, useEffect, useRef} from "react";
 import { useAuthModal } from "../../hooks/useAuthModal.ts";
 import {LoginForm} from "../LoginForm.tsx";
 import {RegisterFlow} from "../RegisterFlow.tsx";
 
 export const AuthModal = () => {
     const { mode, isOpen, closeModal, setMode, authSuccess } = useAuthModal();
+    const backdropRef = useRef<HTMLDivElement | null>(null);
+    const mouseDownOnBackdropRef = useRef(false);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -28,13 +30,29 @@ export const AuthModal = () => {
         closeModal();
     };
 
+    const handleBackdropMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+        mouseDownOnBackdropRef.current = e.target === backdropRef.current;
+    };
+
+    const handleBackdropMouseUp = (e: MouseEvent<HTMLDivElement>) => {
+        const isSameBackdrop =
+            mouseDownOnBackdropRef.current && e.target === backdropRef.current;
+
+        mouseDownOnBackdropRef.current = false;
+
+        if (isSameBackdrop) {
+            closeModal();
+        }
+    };
+
     return (
         <div
-            onClick={closeModal}
+            ref={backdropRef}
+            onMouseDown={handleBackdropMouseDown}
+            onMouseUp={handleBackdropMouseUp}
             className="font-manrope fixed inset-0 z-50 flex items-center justify-center bg-black/25 px-4 backdrop-blur-[1px]"
         >
             <div
-                onClick={(e) => e.stopPropagation()}
                 className="relative flex min-h-[540px] w-full max-w-[440px] flex-col bg-white px-10 py-9 shadow-sm"
             >
                 <button

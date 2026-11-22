@@ -3,6 +3,7 @@ import {AuthInput} from "./AuthInput.tsx";
 import {CheckboxField} from "./CheckboxField.tsx";
 import {loginSchema} from "../validation/auth/loginSchema.ts";
 import {z} from "zod";
+import {useLoginMutation} from "../apis/authApi.ts";
 
 interface LoginFormProps {
     onSwitchToRegister: () => void;
@@ -35,6 +36,8 @@ export const LoginForm = ({
                               onSuccess,
                               onForgotPassword,
                           }: LoginFormProps) => {
+    const [login, { isLoading }] = useLoginMutation();
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const [formData, setFormData] = useState<LoginFormData>(INITIAL_LOGIN_DATA);
     const [errors, setErrors] = useState<LoginErrors>(INITIAL_LOGIN_ERRORS);
     const [rememberMe, setRememberMe] = useState(false);
@@ -64,8 +67,9 @@ export const LoginForm = ({
         setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
 
-    const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setSubmitError(null);
 
         const result = loginSchema.safeParse(formData);
 
@@ -89,6 +93,25 @@ export const LoginForm = ({
 
         // Тут буде твоя RTK Query мутація логіну
         console.log("Login payload:", payload);
+        try {
+            await login({
+                email: result.data.email,
+                password: result.data.password,
+            }).unwrap();
+
+            onSuccess?.();
+        } catch (err) {
+            console.error("LOGIN ERROR:", err);
+
+            const data = (err as { data?: { message?: string | string[]; error?: string } })?.data;
+            const message = Array.isArray(data?.message)
+                ? data.message[0]
+                : data?.message || data?.error || "Невірна email або пароль";
+
+            setSubmitError(message);
+            setShakeKey((prev) => prev + 1);
+            return
+        }
         onSuccess();
     };
 
@@ -157,11 +180,29 @@ export const LoginForm = ({
                     </button>
                 </div>
 
+                {submitError && (
+                    <>
+                        <p
+                            role="alert"
+                            className="mt-1.5 text-center text-xs leading-snug text-red-500"
+                        >
+                            {submitError}
+                        </p>
+                    </>
+                )}
+
                 <button
                     type="submit"
-                    className="mt-5 flex h-11 w-full cursor-pointer items-center justify-center rounded-full bg-olive px-5 text-sm font-medium text-white transition hover:bg-olive-light"
+                    disabled={isLoading}
+                    className={`mt-5 flex h-11 w-full items-center justify-center rounded-full bg-olive px-5 text-sm font-medium text-white transition ${!isLoading && "cursor-pointer hover:bg-olive-light"}`}
                 >
-                    Увійти
+                    {isLoading && (
+                        <span
+                            aria-hidden="true"
+                            className="h-4 w-4 me-2 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                        />
+                    )}
+                    <span>{isLoading ? "Входимо..." : "Увійти"}</span>
                 </button>
 
                 {/* Шаблонна кнопка запам'ятати мене */}
