@@ -3,6 +3,8 @@ import {AuthInput} from "./AuthInput.tsx";
 import {CheckboxField} from "./CheckboxField.tsx";
 import {StepDots} from "./StepDots.tsx";
 import {useAuthModal} from "../hooks/useAuthModal.ts";
+import {z} from "zod";
+import {step1Schema, step2Schema, step3Schema} from "../validation/auth/registerSchema.ts";
 
 type RegisterStep = 1 | 2 | 3 | 4 | 5;
 
@@ -19,6 +21,8 @@ interface ErrorsRegisterFormData {
     email: string | undefined;
     password: string | undefined;
     confirmPassword: string | undefined;
+    acceptTerms: string | undefined;
+    acceptPersonalData: string | undefined;
 }
 
 interface RegisterFlowProps {
@@ -35,11 +39,13 @@ const INITIAL_DATA: RegisterFormData = {
 };
 
 const INITIAL_ERRORS_DATA: ErrorsRegisterFormData = {
-    firstName: "Ім'я є обов'язковим",
-    lastName: "Прізвище є обов'язковим",
-    email: "Невірний формат пошти",
-    password: "Пароль має містити мінімум 8 символів",
-    confirmPassword: "Паролі не співпадають"
+    firstName: undefined,
+    lastName: undefined,
+    email: undefined,
+    password: undefined,
+    confirmPassword: undefined,
+    acceptTerms: undefined,
+    acceptPersonalData: undefined,
 };
 
 export const RegisterFlow = ({
@@ -56,12 +62,27 @@ export const RegisterFlow = ({
     const [acceptPersonalData, setAcceptPersonalData] = useState(false);
     const [acceptMarketing, setAcceptMarketing] = useState(false);
 
-    // const [errorFirstName, setErrorFirstName] = useState<string | undefined>("Ім'я є обов'язковим");
-    // const [errorLastName, setErrorLastName] = useState<string | undefined>("Прізвище є обов'язковим");
-    // const [errorEmail, setErrorEmail] = useState<string | undefined>("Невірний формат пошти");
-    // const [errorPassword, setErrorPassword] = useState<string | undefined>("Пароль має містити мінімум 8 символів");
-    // const [errorConfirmPassword, setErrorConfirmPassword] = useState<string | undefined>("Паролі не співпадають");
+    const [shakeKey, setShakeKey] = useState(0);
 
+    const mapZodErrors = (error: z.ZodError): Partial<ErrorsRegisterFormData> => {
+        const nextErrors: Partial<ErrorsRegisterFormData> = {};
+
+        for (const issue of error.issues) {
+            const field = issue.path[0] as keyof ErrorsRegisterFormData | undefined;
+            if (field && !nextErrors[field]) {
+                nextErrors[field] = issue.message;
+            }
+        }
+
+        return nextErrors;
+    };
+
+    const clearFieldError = (field: keyof ErrorsRegisterFormData) => {
+        setErrorsFormData((prev) => ({
+            ...prev,
+            [field]: undefined,
+        }));
+    };
 
     const updateField = <K extends keyof RegisterFormData>(
         field: K,
@@ -74,22 +95,89 @@ export const RegisterFlow = ({
         e.preventDefault();
 
         if (step === 1) {
+            const result = step1Schema.safeParse({
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+            });
+
+            if (!result.success) {
+                setErrorsFormData((prev) => ({
+                    ...prev,
+                    firstName: undefined,
+                    lastName: undefined,
+                    email: undefined,
+                    ...mapZodErrors(result.error),
+                }));
+                setShakeKey((prev) => prev + 1);
+                return;
+            }
+
+            setErrorsFormData((prev) => ({
+                ...prev,
+                firstName: undefined,
+                lastName: undefined,
+                email: undefined,
+            }));
             setStep(2);
             return;
         }
 
         if (step === 2) {
+            const result = step2Schema.safeParse({
+                password: formData.password,
+                confirmPassword: formData.confirmPassword,
+            });
+
+            if (!result.success) {
+                setErrorsFormData((prev) => ({
+                    ...prev,
+                    password: undefined,
+                    confirmPassword: undefined,
+                    ...mapZodErrors(result.error),
+                }));
+                setShakeKey((prev) => prev + 1);
+                return;
+            }
+
+            setErrorsFormData((prev) => ({
+                ...prev,
+                password: undefined,
+                confirmPassword: undefined,
+            }));
             setStep(3);
             return;
         }
 
         if (step === 3) {
+            const result = step3Schema.safeParse({
+                acceptTerms,
+                acceptPersonalData,
+            });
+
+            if (!result.success) {
+                setErrorsFormData((prev) => ({
+                    ...prev,
+                    acceptTerms: undefined,
+                    acceptPersonalData: undefined,
+                    ...mapZodErrors(result.error),
+                }));
+                setShakeKey((prev) => prev + 1);
+                return;
+            }
+
+            setErrorsFormData((prev) => ({
+                ...prev,
+                acceptTerms: undefined,
+                acceptPersonalData: undefined,
+            }));
             setStep(4);
             return;
         }
     };
 
     const handleFinalRegister = () => {
+        console.log()
         // Тут згодом буде RTK Query мутація реєстрації
         openRegister({redirectTo: "/"});
         setStep(5);
@@ -108,7 +196,7 @@ export const RegisterFlow = ({
                             Створення нового облікового запису
                         </h2>
                         {/* Поля 1-го кроку */}
-                        <form id="register-step-1" onSubmit={handleNextStep} className="mt-6 flex flex-col">
+                        <form id="register-step-1" onSubmit={handleNextStep} noValidate className="mt-6 flex flex-col">
                             <AuthInput
                                 label="Ім'я"
                                 type="text"
@@ -116,10 +204,7 @@ export const RegisterFlow = ({
                                 value={formData.firstName}
                                 onChange={(e) => {
                                     updateField("firstName", e.target.value)
-                                    setErrorsFormData((prev) => ({
-                                        ...prev,
-                                        firstName: undefined
-                                    }))
+                                    clearFieldError("firstName");
                                 }}
                                 error={errorsFormData.firstName}
                             />
@@ -132,10 +217,7 @@ export const RegisterFlow = ({
                                 value={formData.lastName}
                                 onChange={(e) => {
                                     updateField("lastName", e.target.value)
-                                    setErrorsFormData((prev) => ({
-                                        ...prev,
-                                        lastName: undefined
-                                    }))
+                                    clearFieldError("lastName");
                                 }}
                                 error={errorsFormData.lastName}
                             />
@@ -148,10 +230,7 @@ export const RegisterFlow = ({
                                 value={formData.email}
                                 onChange={(e) => {
                                     updateField("email", e.target.value)
-                                    setErrorsFormData((prev) => ({
-                                        ...prev,
-                                        email: undefined
-                                    }))
+                                    clearFieldError("email");
                                 }}
                                 error={errorsFormData.email}
                             />
@@ -165,7 +244,7 @@ export const RegisterFlow = ({
                             Створіть пароль
                         </h2>
                         {/* Поля 2-го кроку */}
-                        <form id="register-step-2" onSubmit={handleNextStep} className="mt-6 flex flex-col">
+                        <form id="register-step-2" onSubmit={handleNextStep} noValidate className="mt-6 flex flex-col">
                             <AuthInput
                                 label="Пароль"
                                 type="password"
@@ -174,12 +253,10 @@ export const RegisterFlow = ({
                                 value={formData.password}
                                 onChange={(e) => {
                                     updateField("password", e.target.value)
-                                    setErrorsFormData((prev) => ({
-                                        ...prev,
-                                        password: undefined
-                                    }))
+                                    clearFieldError("password");
                                 }}
                                 error={errorsFormData.password}
+                                shakeKey={shakeKey}
                             />
 
                             <AuthInput
@@ -190,12 +267,10 @@ export const RegisterFlow = ({
                                 value={formData.confirmPassword}
                                 onChange={(e) => {
                                     updateField("confirmPassword", e.target.value)
-                                    setErrorsFormData((prev) => ({
-                                        ...prev,
-                                        confirmPassword: undefined
-                                    }))
+                                    clearFieldError("confirmPassword");
                                 }}
                                 error={errorsFormData.confirmPassword}
+                                shakeKey={shakeKey}
                             />
 
                             <CheckboxField
@@ -216,14 +291,28 @@ export const RegisterFlow = ({
                             Погодьтеся з умовами
                         </h2>
                         {/* Чекбокси 3-го кроку */}
-                        <form id="register-step-3" onSubmit={handleNextStep} className="mt-6 flex flex-col">
+                        <form id="register-step-3" onSubmit={handleNextStep} noValidate className="mt-6 flex flex-col">
                             <div className="flex flex-col gap-3.5">
                                 <CheckboxField
                                     label="Я погоджуюсь з Умовами використання та Політикою конфіденційності"
                                     checked={acceptTerms}
-                                    onChange={(e) =>
-                                        setAcceptTerms(e.target.checked)
-                                    }
+                                    onChange={(e) => {
+                                        setAcceptTerms(e.target.checked);
+                                        clearFieldError("acceptTerms");
+                                    }}
+                                    error={errorsFormData.acceptTerms}
+                                    shakeKey={shakeKey}
+                                />
+
+                                <CheckboxField
+                                    label="Я погоджуюсь на обробку персональної інформації"
+                                    checked={acceptPersonalData}
+                                    onChange={(e) => {
+                                        setAcceptPersonalData(e.target.checked);
+                                        clearFieldError("acceptPersonalData");
+                                    }}
+                                    error={errorsFormData.acceptPersonalData}
+                                    shakeKey={shakeKey}
                                 />
 
                                 <CheckboxField
@@ -231,14 +320,6 @@ export const RegisterFlow = ({
                                     checked={acceptMarketing}
                                     onChange={(e) =>
                                         setAcceptMarketing(e.target.checked)
-                                    }
-                                />
-
-                                <CheckboxField
-                                    label="Я погоджуюсь на обробку персональної інформації"
-                                    checked={acceptPersonalData}
-                                    onChange={(e) =>
-                                       setAcceptPersonalData(e.target.checked)
                                     }
                                 />
                             </div>
@@ -273,11 +354,11 @@ export const RegisterFlow = ({
                             <div className="flex items-center justify-between gap-2">
                                 <div>
                                     <p className="text-xs text-gray-500">Умови та згоди</p>
-                                    <p className="mt-0.5 text-xs font-medium">
-                                        {acceptTerms ? "Умови прийнято" : "Умови не прийнято"}
-                                        {acceptMarketing ? " · Отримання новин прийнято" : "· Отримання новин не прийнято"}
-                                        {acceptPersonalData ? " · Обробка персональних данних прийнято" : " · Обробка персональних данних не прийнято"}
-                                    </p>
+                                    <ul className="mt-0.5 text-xs font-medium">
+                                        <li className={`${!acceptTerms && "text-red-700"}`}>{acceptTerms ? "· Умови прийнято" : " · Умови не прийнято"}</li>
+                                        <li className={`${!acceptPersonalData && "text-red-700"}`}>{acceptPersonalData ? " · Обробка персональних данних прийнято" : " · Обробка персональних данних не прийнято"}</li>
+                                        <li className={`${!acceptMarketing && "text-red-700"}`}>{acceptMarketing ? " · Отримання новин прийнято" : " · Отримання новин не прийнято"}</li>
+                                    </ul>
                                 </div>
                                 <button
                                     type="button"
@@ -292,7 +373,7 @@ export const RegisterFlow = ({
                 )}
 
                 {step === 5 && (
-                    <div className="my-auto text-center">
+                    <div className="my-auto text-center ">
                         <h2 className="text-xl font-medium tracking-tight">
                             Реєстрація пройшла успішно!
                         </h2>

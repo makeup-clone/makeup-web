@@ -1,6 +1,8 @@
 import {type SyntheticEvent, useState} from "react";
 import {AuthInput} from "./AuthInput.tsx";
 import {CheckboxField} from "./CheckboxField.tsx";
+import {loginSchema} from "../validation/auth/loginSchema.ts";
+import {z} from "zod";
 
 interface LoginFormProps {
     onSwitchToRegister: () => void;
@@ -8,21 +10,85 @@ interface LoginFormProps {
     onForgotPassword?: () => void;
 }
 
+interface LoginFormData {
+    email: string;
+    password: string;
+}
+
+interface LoginErrors {
+    email: string | undefined;
+    password: string | undefined;
+}
+
+const INITIAL_LOGIN_DATA: LoginFormData = {
+    email: "",
+    password: "",
+};
+
+const INITIAL_LOGIN_ERRORS: LoginErrors = {
+    email: undefined,
+    password: undefined,
+};
+
 export const LoginForm = ({
                               onSwitchToRegister,
                               onSuccess,
                               onForgotPassword,
                           }: LoginFormProps) => {
-    const [email, setEmail] = useState("");
-    // Тимчасово прописані помилки для перевірки верстки; згодом підключаться валідатор / RTK Query
-    const [emailError, setEmailError] = useState<string | undefined>("Невірний формат пошти",);
-    const [password, setPassword] = useState("");
-    const [passwordError, setPasswordError] = useState<string | undefined>("Невірний пароль",);
+    const [formData, setFormData] = useState<LoginFormData>(INITIAL_LOGIN_DATA);
+    const [errors, setErrors] = useState<LoginErrors>(INITIAL_LOGIN_ERRORS);
     const [rememberMe, setRememberMe] = useState(false);
+    const [shakeKey, setShakeKey] = useState(0);
+
+    const mapLoginZodErrors = (error: z.ZodError): Partial<LoginErrors> => {
+        const mapped: Partial<LoginErrors> = {};
+
+        for (const issue of error.issues) {
+            const field = issue.path[0] as keyof LoginErrors | undefined;
+            if (field && !mapped[field]) {
+                mapped[field] = issue.message;
+            }
+        }
+
+        return mapped;
+    };
+
+    const updateField = <K extends keyof LoginFormData>(
+        field: K,
+        value: LoginFormData[K],
+    ) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const clearFieldError = (field: keyof LoginErrors) => {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+    };
 
     const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        const result = loginSchema.safeParse(formData);
+
+        if (!result.success) {
+            setErrors({
+                email: undefined,
+                password: undefined,
+                ...mapLoginZodErrors(result.error),
+            });
+            setShakeKey((prev) => prev + 1);
+            return;
+        }
+
+        setErrors(INITIAL_LOGIN_ERRORS);
+
+        const payload = {
+            email: result.data.email,
+            password: result.data.password,
+            rememberMe,
+        };
+
         // Тут буде твоя RTK Query мутація логіну
+        console.log("Login payload:", payload);
         onSuccess();
     };
 
@@ -45,18 +111,19 @@ export const LoginForm = ({
 
             <div className="my-3 text-center text-sm text-gray-700">або</div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col">
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col">
                 <AuthInput
                     label="Електронна пошта"
                     type="email"
                     autoComplete="email"
                     required
-                    value={email}
+                    value={formData.email}
                     onChange={(e) => {
-                        setEmail(e.target.value);
-                        if (emailError) setEmailError(undefined);
+                        updateField("email", e.target.value);
+                        clearFieldError("email");
                     }}
-                    error={emailError}
+                    error={errors.email}
+                    shakeKey={shakeKey}
                 />
 
                 <AuthInput
@@ -65,12 +132,13 @@ export const LoginForm = ({
                     type="password"
                     autoComplete="current-password"
                     required
-                    value={password}
+                    value={formData.password}
                     onChange={(e) => {
-                        setPassword(e.target.value);
-                        if (passwordError) setPasswordError(undefined);
+                        updateField("password", e.target.value);
+                        clearFieldError("password");
                     }}
-                    error={passwordError}
+                    error={errors.password}
+                    shakeKey={shakeKey}
                 />
 
                 {/* Шаблонна кнопка для відновлення пароля */}

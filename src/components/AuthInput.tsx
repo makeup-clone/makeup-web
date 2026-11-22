@@ -8,6 +8,7 @@ interface AuthInputProps
     helperText?: string;
     containerClassName?: string;
     labelClassName?: string;
+    shakeKey?: number;
 }
 
 export const AuthInput = ({
@@ -18,6 +19,7 @@ export const AuthInput = ({
                               className = "",
                               containerClassName = "",
                               labelClassName = "",
+                              shakeKey,
                               ...inputProps
                           }: AuthInputProps) => {
     const generatedId = useId();
@@ -51,27 +53,33 @@ export const AuthInput = ({
                     </span>
             )}
 
-            <input
-                id={inputId}
-                aria-invalid={hasError}
-                aria-describedby={describedBy}
-                className={`h-11 w-full rounded-full border bg-white px-4 text-sm text-black outline-none transition-colors autofill:shadow-[inset_0_0_0_1000px_var(--color-cream-light)] ${
-                    hasError
-                        ? "border-red-500 focus:inset-ring-1 focus:inset-ring-red-500"
-                        : "border-black focus:inset-ring-1 focus:inset-ring-black"
-                } ${className}`}
-                {...inputProps}
-            />
+            <div
+                key={error ? `err-${shakeKey ?? 0}` : "no-err"}
+                className={`flex flex-col gap-1.5 ${error ? "animate-field-shake" : ""}`}
+            >
+                <input
+                    id={inputId}
+                    aria-invalid={hasError}
+                    aria-describedby={describedBy}
+                    className={`h-11 w-full rounded-full border bg-white px-4 text-sm text-black outline-none transition-colors autofill:shadow-[inset_0_0_0_1000px_var(--color-cream-light)] ${
+                        hasError
+                            ? "border-red-500 focus:inset-ring-1 focus:inset-ring-red-500"
+                            : "border-black focus:inset-ring-1 focus:inset-ring-black"
+                    } ${className}`}
+                    {...inputProps}
+                />
 
-            {hasError && (
-                <p
-                    id={errorId}
-                    role="alert"
-                    className="mt-1.5 text-center text-xs leading-snug text-red-500"
-                >
-                    {error}
-                </p>
-            )}
+                {hasError && (
+                    <p
+                        id={errorId}
+                        role="alert"
+                        className="mt-1.5 text-center text-xs leading-snug text-red-500"
+                    >
+                        {error}
+                    </p>
+                )}
+            </div>
+
         </div>
     );
 };

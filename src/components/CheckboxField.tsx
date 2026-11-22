@@ -4,29 +4,39 @@ interface CheckboxFieldProps
     extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "id"> {
     label: ReactNode;
     id?: string;
+    error?: string;
     containerClassName?: string;
     labelClassName?: string;
+    shakeKey?: number;
 }
 
 export const CheckboxField = ({
                                   label,
                                   id,
+                                  error,
                                   checked,
                                   onChange,
                                   className = "",
                                   containerClassName = "",
                                   labelClassName = "",
+                                  shakeKey,
                                   ...inputProps
                               }: CheckboxFieldProps) => {
     const generatedId = useId();
     const checkboxId = id ?? generatedId;
     const isChecked = Boolean(checked);
+    const errorId = `${checkboxId}-error`;
+    const hasError = Boolean(error);
 
     return (
-        <label
-            htmlFor={checkboxId}
-            className={`flex cursor-pointer items-start gap-5 text-sm font-medium ${containerClassName}`}
+        <div
+            key={error ? `err-${shakeKey ?? 0}` : "no-err"}
+            className={`flex flex-col gap-1.5 ${error ? "animate-field-shake" : ""}`}
         >
+            <label
+                htmlFor={checkboxId}
+                className={`flex items-center cursor-pointer gap-5 text-sm font-medium ${containerClassName}`}
+            >
             <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
                 <input
                     id={checkboxId}
@@ -36,7 +46,11 @@ export const CheckboxField = ({
                     className={`peer sr-only ${className}`}
                     {...inputProps}
                 />
-                <span className="flex h-5 w-5 items-center justify-center rounded-md border-[1.5px] border-gray-800 bg-transparent transition-colors peer-checked:border-olive peer-checked:bg-olive peer-focus-visible:ring-2 peer-focus-visible:ring-olive/40">
+                <span className={`flex h-5 w-5 items-center justify-center leading-snug rounded-md border border-gray-800 bg-transparent transition-colors peer-checked:border-olive peer-checked:bg-olive peer-focus-visible:ring-2 peer-focus-visible:ring-olive/40 ${
+                        hasError
+                            ? "border-red-500 focus:inset-ring-2 focus:inset-ring-red-500"
+                            : "border-black focus:inset-ring-1 focus:inset-ring-black"
+                    }`}>
                     <svg
                         viewBox="0 0 14 14"
                         fill="none"
@@ -55,7 +69,18 @@ export const CheckboxField = ({
                     </svg>
                 </span>
             </span>
-            <span className={`leading-normal ${labelClassName}`}>{label}</span>
-        </label>
+                <span className={`leading-normal ${labelClassName}`}>{label}</span>
+            </label>
+
+            {hasError && (
+                <p
+                    id={errorId}
+                    role="alert"
+                    className="mt-1 text-center text-xs leading-snug text-red-500"
+                >
+                    {error}
+                </p>
+            )}
+        </div>
     );
 };
