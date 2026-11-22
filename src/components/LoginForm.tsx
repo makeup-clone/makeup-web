@@ -1,6 +1,6 @@
 import {type SyntheticEvent, useState} from "react";
-import {AuthInput} from "./AuthInput.tsx";
-import {CheckboxField} from "./CheckboxField.tsx";
+import {AuthInput} from "./ui/AuthInput.tsx";
+import {CheckboxField} from "./ui/CheckboxField.tsx";
 import {loginSchema} from "../validation/auth/loginSchema.ts";
 import {z} from "zod";
 import {useLoginMutation} from "../apis/authApi.ts";
@@ -36,13 +36,17 @@ export const LoginForm = ({
                               onSuccess,
                               onForgotPassword,
                           }: LoginFormProps) => {
+    // Мутація входу та стан серверної помилки (невірні дані / мережа / інше)
     const [login, { isLoading }] = useLoginMutation();
     const [submitError, setSubmitError] = useState<string | null>(null);
+
+    // Дані форми, помилки валідації полів, опція "Запам'ятати мене" та лічильник трясіння
     const [formData, setFormData] = useState<LoginFormData>(INITIAL_LOGIN_DATA);
     const [errors, setErrors] = useState<LoginErrors>(INITIAL_LOGIN_ERRORS);
     const [rememberMe, setRememberMe] = useState(false);
     const [shakeKey, setShakeKey] = useState(0);
 
+    // Перетворює помилки Zod у формат { [field]: message }, беручи першу помилку на поле
     const mapLoginZodErrors = (error: z.ZodError): Partial<LoginErrors> => {
         const mapped: Partial<LoginErrors> = {};
 
@@ -56,6 +60,7 @@ export const LoginForm = ({
         return mapped;
     };
 
+    // Оновлює значення конкретного поля форми з контролем типів ключа та значення
     const updateField = <K extends keyof LoginFormData>(
         field: K,
         value: LoginFormData[K],
@@ -63,10 +68,12 @@ export const LoginForm = ({
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
+    // Очищає помилку валідації для поля, яке користувач почав редагувати
     const clearFieldError = (field: keyof LoginErrors) => {
         setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
 
+    // Валідація форми через Zod та відправка запиту на авторизацію
     const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSubmitError(null);
@@ -85,14 +92,8 @@ export const LoginForm = ({
 
         setErrors(INITIAL_LOGIN_ERRORS);
 
-        // const payload = {
-        //     email: result.data.email,
-        //     password: result.data.password,
-        //     rememberMe,
-        // };
-        //
-        // console.log("Login payload:", payload);
         try {
+            // Використовуємо нормалізовані значення з result.data (наприклад, після .trim())
             await login({
                 email: result.data.email,
                 password: result.data.password,
@@ -100,7 +101,6 @@ export const LoginForm = ({
 
             onSuccess?.();
         } catch (err) {
-            // console.error("LOGIN ERROR:", err);
 
             const data = (err as { data?: { message?: string | string[]; error?: string } })?.data;
             const message = Array.isArray(data?.message)
@@ -111,7 +111,6 @@ export const LoginForm = ({
             setShakeKey((prev) => prev + 1);
             return
         }
-        onSuccess();
     };
 
     return (
@@ -133,6 +132,7 @@ export const LoginForm = ({
 
             <div className="my-3 text-center text-sm text-gray-700">або</div>
 
+            {/* Основна форма входу за email і паролем */}
             <form onSubmit={handleSubmit} noValidate className="flex flex-col">
                 <AuthInput
                     label="Електронна пошта"
@@ -163,7 +163,7 @@ export const LoginForm = ({
                     shakeKey={shakeKey}
                 />
 
-                {/* Шаблонна кнопка для відновлення пароля */}
+                {/* Кнопка відновлення пароля */}
                 <div className="mt-2">
                     <button
                         type="button"
@@ -179,6 +179,7 @@ export const LoginForm = ({
                     </button>
                 </div>
 
+                {/* Серверна помилка авторизації */}
                 {submitError && (
                     <>
                         <p
@@ -190,6 +191,7 @@ export const LoginForm = ({
                     </>
                 )}
 
+                {/* Кнопка сабміту зі станом завантаження */}
                 <button
                     type="submit"
                     disabled={isLoading}
@@ -204,7 +206,7 @@ export const LoginForm = ({
                     <span>{isLoading ? "Входимо..." : "Увійти"}</span>
                 </button>
 
-                {/* Шаблонна кнопка запам'ятати мене */}
+                {/* Чекбокс запам'ятовування сесії */}
                 <CheckboxField
                     containerClassName="mt-4"
                     label={<span>Запам&apos;ятати мене</span>}
@@ -212,6 +214,7 @@ export const LoginForm = ({
                     onChange={(e) => setRememberMe(e.target.checked)}
                 />
 
+                {/* Перемикання на багатоетапну реєстрацію */}
                 <p className="mt-6 text-center text-xs font-medium">
                     Немає облікового запису?{" "}
                     <button

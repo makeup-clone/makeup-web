@@ -1,12 +1,13 @@
 import {type SyntheticEvent, useState} from "react";
-import {AuthInput} from "./AuthInput.tsx";
-import {CheckboxField} from "./CheckboxField.tsx";
-import {StepDots} from "./StepDots.tsx";
+import {AuthInput} from "./ui/AuthInput.tsx";
+import {CheckboxField} from "./ui/CheckboxField.tsx";
+import {StepDots} from "./ui/StepDots.tsx";
 import {useAuthModal} from "../hooks/useAuthModal.ts";
 import {z} from "zod";
 import {step1Schema, step2Schema, step3Schema} from "../validation/auth/registerSchema.ts";
 import {useRegisterMutation} from "../apis/authApi.ts";
 
+// Допустимі кроки багатоетапної реєстрації
 type RegisterStep = 1 | 2 | 3 | 4 | 5;
 
 interface RegisterFormData {
@@ -53,20 +54,26 @@ export const RegisterFlow = ({
                                  onSwitchToLogin,
                                  onComplete,
                              }: RegisterFlowProps) => {
+    // Мутація реєстрації та стан серверної помилки
     const [register, { isLoading }] = useRegisterMutation();
     const [submitError, setSubmitError] = useState<string | null>(null);
+
+    // Поточний крок та дані форми / помилки валідації
     const [step, setStep] = useState<RegisterStep>(1);
     const [formData, setFormData] = useState<RegisterFormData>(INITIAL_DATA);
     const [errorsFormData, setErrorsFormData] = useState<ErrorsRegisterFormData>(INITIAL_ERRORS_DATA);
     const { openRegister } = useAuthModal();
 
+    // Додаткові прапорці (кроки 2 і 3)
     const [rememberMe, setRememberMe] = useState(false)
     const [acceptTerms, setAcceptTerms] = useState(false);
     const [acceptPersonalData, setAcceptPersonalData] = useState(false);
     const [acceptMarketing, setAcceptMarketing] = useState(false);
 
+    // Лічильник для перезапуску анімації трясіння без зміни ключа інпуту
     const [shakeKey, setShakeKey] = useState(0);
 
+    // Перетворює помилки Zod у плоский об'єкт { [field]: message } (бере першу помилку на поле)
     const mapZodErrors = (error: z.ZodError): Partial<ErrorsRegisterFormData> => {
         const nextErrors: Partial<ErrorsRegisterFormData> = {};
 
@@ -80,6 +87,7 @@ export const RegisterFlow = ({
         return nextErrors;
     };
 
+    // Очищає помилку конкретного поля при взаємодії користувача з ним
     const clearFieldError = (field: keyof ErrorsRegisterFormData) => {
         setErrorsFormData((prev) => ({
             ...prev,
@@ -87,6 +95,7 @@ export const RegisterFlow = ({
         }));
     };
 
+    // Оновлює одне поле у formData зі збереженням типізації ключа і значення
     const updateField = <K extends keyof RegisterFormData>(
         field: K,
         value: RegisterFormData[K],
@@ -94,11 +103,13 @@ export const RegisterFlow = ({
         setFormData((prev) => ({...prev, [field]: value}));
     };
 
+    // Перемикає крок і скидає попередню серверу помилку
     const handleSetStep = (handleStep:RegisterStep) => {
         setSubmitError(null);
         setStep(handleStep);
     }
 
+    // Валідація поточного кроку перед переходом далі (кроки 1 -> 2 -> 3 -> 4)
     const handleNextStep = (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -121,7 +132,7 @@ export const RegisterFlow = ({
                 return;
             }
 
-            // записуємо затримлені/нормалізовані значення з Zod
+            // Зберігаємо нормалізовані (наприклад, затримлені через .trim()) значення з Zod
             setFormData((prev) => ({
                 ...prev,
                 ...result.data,
@@ -190,6 +201,7 @@ export const RegisterFlow = ({
         }
     };
 
+    // Фінальна відправка даних на бекенд після кроку перевірки (крок 4)
     const handleFinalRegister = async () => {
 
         const payload = new FormData();
@@ -221,6 +233,7 @@ export const RegisterFlow = ({
         handleSetStep(5);
     };
 
+    // Повернення на попередній крок зі скиданням серверної помилки
     const handlePrevStep = () => {
         setSubmitError(null);
         setStep((prev) => (prev > 1 ? ((prev - 1) as RegisterStep) : prev));
@@ -228,7 +241,9 @@ export const RegisterFlow = ({
 
     return (
         <div className="flex flex-1 flex-col">
+            {/* Основний контент поточного кроку */}
             <div className="flex flex-1 flex-col">
+                {/* Крок 1: Особисті дані та email */}
                 {step === 1 && (
                     <div>
                         <h2 className="text-center text-xl font-medium tracking-tight">
@@ -280,6 +295,7 @@ export const RegisterFlow = ({
                     </div>
                 )}
 
+                {/* Крок 2: Пароль та підтвердження */}
                 {step === 2 && (
                     <div>
                         <h2 className="text-center text-xl font-medium tracking-tight">
@@ -327,6 +343,7 @@ export const RegisterFlow = ({
                     </div>
                 )}
 
+                {/* Крок 3: Обов'язкові та маркетингові згоди */}
                 {step === 3 && (
                     <div>
                         <h2 className="text-center text-xl font-medium tracking-tight">
@@ -369,6 +386,7 @@ export const RegisterFlow = ({
                     </div>
                 )}
 
+                {/* Крок 4: Перевірка введених даних перед сабмітом */}
                 {step === 4 && (
                     <div>
                         <h2 className="text-center text-xl font-medium tracking-tight text-[#1A1A18]">
@@ -414,6 +432,7 @@ export const RegisterFlow = ({
                     </div>
                 )}
 
+                {/* Крок 5: Екран успішної реєстрації */}
                 {step === 5 && (
                     <div className="my-auto text-center ">
                         <h2 className="text-xl font-medium tracking-tight">
@@ -425,7 +444,7 @@ export const RegisterFlow = ({
 
 
 
-            {/* Низ завжди зафіксований внизу картки */}
+            {/* Нижня панель навігації, зафіксована внизу картки */}
             <div className="mt-auto pt-6">
                 {submitError && (
                     <>
@@ -489,8 +508,10 @@ export const RegisterFlow = ({
                     </button>
                 )}
 
+                {/* Індикатор прогресу по 5 кроках */}
                 <StepDots totalSteps={5} currentStep={step} className={`mt-6 ${step === 5 && 'mb-9'}`}/>
 
+                {/* Перемикання на форму входу на етапах до завершення реєстрації */}
                 {step < 5 && (
                     <p className="mt-5 text-center text-xs font-medium">
                         Вже є обліковий запис?{" "}
