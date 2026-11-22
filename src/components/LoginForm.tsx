@@ -85,14 +85,13 @@ export const LoginForm = ({
 
         setErrors(INITIAL_LOGIN_ERRORS);
 
-        const payload = {
-            email: result.data.email,
-            password: result.data.password,
-            rememberMe,
-        };
-
-        // Тут буде твоя RTK Query мутація логіну
-        console.log("Login payload:", payload);
+        // const payload = {
+        //     email: result.data.email,
+        //     password: result.data.password,
+        //     rememberMe,
+        // };
+        //
+        // console.log("Login payload:", payload);
         try {
             await login({
                 email: result.data.email,
@@ -101,7 +100,7 @@ export const LoginForm = ({
 
             onSuccess?.();
         } catch (err) {
-            console.error("LOGIN ERROR:", err);
+            // console.error("LOGIN ERROR:", err);
 
             const data = (err as { data?: { message?: string | string[]; error?: string } })?.data;
             const message = Array.isArray(data?.message)

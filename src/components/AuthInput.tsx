@@ -1,4 +1,4 @@
-import {type InputHTMLAttributes, useId} from "react";
+import {type InputHTMLAttributes, useEffect, useId, useRef} from "react";
 
 interface AuthInputProps
     extends Omit<InputHTMLAttributes<HTMLInputElement>, "id"> {
@@ -27,6 +27,16 @@ export const AuthInput = ({
     const errorId = `${inputId}-error`;
     const helperId = `${inputId}-helper`;
     const hasError = Boolean(error);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!hasError || !shakeKey || !el) return;
+
+        el.classList.remove("animate-field-shake");
+        void el.offsetWidth;
+        el.classList.add("animate-field-shake");
+    }, [hasError, shakeKey]);
 
     const describedBy = [
         hasError ? errorId : null,
@@ -54,8 +64,8 @@ export const AuthInput = ({
             )}
 
             <div
-                key={error ? `err-${shakeKey ?? 0}` : "no-err"}
-                className={`flex flex-col gap-1.5 ${error ? "animate-field-shake" : ""}`}
+                ref={containerRef}
+                className={`flex flex-col gap-1.5`}
             >
                 <input
                     id={inputId}

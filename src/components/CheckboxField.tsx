@@ -1,4 +1,4 @@
-import {type InputHTMLAttributes, type ReactNode, useId} from "react";
+import {type InputHTMLAttributes, type ReactNode, useEffect, useId, useRef} from "react";
 
 interface CheckboxFieldProps
     extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "id"> {
@@ -27,11 +27,21 @@ export const CheckboxField = ({
     const isChecked = Boolean(checked);
     const errorId = `${checkboxId}-error`;
     const hasError = Boolean(error);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!hasError || !shakeKey || !el) return;
+
+        el.classList.remove("animate-field-shake");
+        void el.offsetWidth;
+        el.classList.add("animate-field-shake");
+    }, [hasError, shakeKey]);
 
     return (
         <div
-            key={error ? `err-${shakeKey ?? 0}` : "no-err"}
-            className={`flex flex-col gap-1.5 ${error ? "animate-field-shake" : ""}`}
+            ref={containerRef}
+            className={`flex flex-col gap-1.5`}
         >
             <label
                 htmlFor={checkboxId}

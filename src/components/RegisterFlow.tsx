@@ -5,6 +5,7 @@ import {StepDots} from "./StepDots.tsx";
 import {useAuthModal} from "../hooks/useAuthModal.ts";
 import {z} from "zod";
 import {step1Schema, step2Schema, step3Schema} from "../validation/auth/registerSchema.ts";
+import {useRegisterMutation} from "../apis/authApi.ts";
 
 type RegisterStep = 1 | 2 | 3 | 4 | 5;
 
@@ -52,6 +53,8 @@ export const RegisterFlow = ({
                                  onSwitchToLogin,
                                  onComplete,
                              }: RegisterFlowProps) => {
+    const [register, { isLoading }] = useRegisterMutation();
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const [step, setStep] = useState<RegisterStep>(1);
     const [formData, setFormData] = useState<RegisterFormData>(INITIAL_DATA);
     const [errorsFormData, setErrorsFormData] = useState<ErrorsRegisterFormData>(INITIAL_ERRORS_DATA);
@@ -91,6 +94,11 @@ export const RegisterFlow = ({
         setFormData((prev) => ({...prev, [field]: value}));
     };
 
+    const handleSetStep = (handleStep:RegisterStep) => {
+        setSubmitError(null);
+        setStep(handleStep);
+    }
+
     const handleNextStep = (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -113,13 +121,19 @@ export const RegisterFlow = ({
                 return;
             }
 
+            // записуємо затримлені/нормалізовані значення з Zod
+            setFormData((prev) => ({
+                ...prev,
+                ...result.data,
+            }));
+
             setErrorsFormData((prev) => ({
                 ...prev,
                 firstName: undefined,
                 lastName: undefined,
                 email: undefined,
             }));
-            setStep(2);
+            handleSetStep(2);
             return;
         }
 
@@ -145,7 +159,7 @@ export const RegisterFlow = ({
                 password: undefined,
                 confirmPassword: undefined,
             }));
-            setStep(3);
+            handleSetStep(3);
             return;
         }
 
@@ -171,19 +185,44 @@ export const RegisterFlow = ({
                 acceptTerms: undefined,
                 acceptPersonalData: undefined,
             }));
-            setStep(4);
+            handleSetStep(4);
             return;
         }
     };
 
-    const handleFinalRegister = () => {
-        console.log()
-        // Тут згодом буде RTK Query мутація реєстрації
+    const handleFinalRegister = async () => {
+
+        const payload = new FormData();
+        payload.append("firstName", formData.firstName);
+        payload.append("lastName", formData.lastName);
+        payload.append("email", formData.email);
+        payload.append("password", formData.password);
+        payload.append("passwordConfirm", formData.confirmPassword);
+
+        // console.log("Register payload:", payload);
+        try {
+            await register(payload).unwrap();
+            onComplete?.();
+        } catch (err) {
+            // console.error("REGISTER ERROR:", err);
+
+            const data = (
+                err as { data?: { message?: string | string[]; error?: string } }
+            )?.data;
+            const message = Array.isArray(data?.message)
+                ? data.message[0]
+                : data?.message || data?.error || "Не вдалося завершити реєстрацію";
+
+            setSubmitError(message);
+            setShakeKey((prev) => prev + 1);
+            return
+        }
         openRegister({redirectTo: "/"});
-        setStep(5);
+        handleSetStep(5);
     };
 
     const handlePrevStep = () => {
+        setSubmitError(null);
         setStep((prev) => (prev > 1 ? ((prev - 1) as RegisterStep) : prev));
     };
 
@@ -347,7 +386,7 @@ export const RegisterFlow = ({
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => setStep(1)}
+                                    onClick={() => handleSetStep(1)}
                                     className="cursor-pointer text-xs text-gray-600 underline hover:text-gray-900"
                                 >
                                     Змінити
@@ -365,7 +404,7 @@ export const RegisterFlow = ({
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => setStep(3)}
+                                    onClick={() => handleSetStep(3)}
                                     className="cursor-pointer text-xs text-gray-600 underline hover:text-gray-900"
                                 >
                                     Змінити
@@ -384,8 +423,21 @@ export const RegisterFlow = ({
                 )}
             </div>
 
+
+
             {/* Низ завжди зафіксований внизу картки */}
             <div className="mt-auto pt-6">
+                {submitError && (
+                    <>
+                        <p
+                            role="alert"
+                            className="mt-1.5 mb-5 text-center text-xs leading-snug text-red-500"
+                        >
+                            {submitError}
+                        </p>
+                    </>
+                )}
+
                 {step < 5 ? (
                         step === 1 ? (
                             <button
@@ -395,7 +447,7 @@ export const RegisterFlow = ({
                             >
                                 Далі
                             </button>) : (
-                            <div className="flex gap-[1px]">
+                            <div className="flex gap-px">
                                 <button
                                     type="button"
                                     onClick={handlePrevStep}
@@ -407,9 +459,16 @@ export const RegisterFlow = ({
                                     <button
                                         type="button"
                                         onClick={handleFinalRegister}
-                                        className="flex h-11 w-full cursor-pointer items-center justify-center rounded-r-full bg-olive px-5 text-sm font-medium text-white transition hover:bg-olive-light"
+                                        disabled={isLoading}
+                                        className={`flex h-11 w-full items-center justify-center rounded-r-full bg-olive px-5 text-sm font-medium text-white transition ${!isLoading && "cursor-pointer hover:bg-olive-light"}`}
                                     >
-                                        Зареєструватися
+                                        {isLoading && (
+                                            <span
+                                                aria-hidden="true"
+                                                className="h-4 w-4 me-2 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                                            />
+                                        )}
+                                        <span className="text-nowrap" >{isLoading ? "Створюємо акаунт..." : "Створити акаунт"}</span>
                                     </button>) : (
                                     <button
                                         type="submit"
