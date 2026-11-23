@@ -3,10 +3,10 @@ import {useAuth} from "../hooks/useAuth.ts";
 
 const NotFound = () => {
     const navigate = useNavigate();
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isLoading } = useAuth();
 
-    const primaryTarget = isAuthenticated ? "/profile" : "/login";
-    const primaryLabel = isAuthenticated ? "До профілю" : "На сторінку входу";
+    // const primaryTarget = isAuthenticated ? "/profile" : "/login";
+    // const primaryLabel = isAuthenticated ? "До профілю" : "На сторінку входу";
 
     return (
         <main className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
@@ -33,10 +33,10 @@ const NotFound = () => {
 
                 {!isLoading && (
                     <Link
-                        to={primaryTarget}
+                        to={"/"}
                         className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-800"
                     >
-                        {primaryLabel}
+                        На головну
                     </Link>
                 )}
             </div>

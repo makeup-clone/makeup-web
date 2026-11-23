@@ -29,6 +29,8 @@
     --font-manrope: "Manrope", sans-serif;
     --color-olive: #414A35;
     --color-cream: #F1E8DA;
+    --color-olive-light: #9AAA7E;
+    --color-cream-light: #F3F1EC;
 }
 
 @layer base {
@@ -37,4 +39,20 @@
         margin: 0;
         padding: 0;
     }
+}
+
+@keyframes field-shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20%, 60% {
+        transform: translateX(-5px);
+    }
+    40%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+.animate-field-shake {
+    animation: field-shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
