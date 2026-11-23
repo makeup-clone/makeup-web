@@ -4,7 +4,7 @@ interface UserActionProps {
 }
 
 // const hoverStyle1 = "hover:border-gray-900 border-b py-1 border-transparent transition-colors duration-200";
-const hoverStyle2 = "hover:bg-cream-light rounded p-1 transition-colors duration-200";
+const hoverStyle2 = "hover:bg-cream-light rounded transition-colors duration-200";
 
 const UserActionBtn = ( {children, onClick}:UserActionProps ) => {
     return (
