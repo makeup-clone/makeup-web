@@ -4,6 +4,7 @@ import {CheckboxField} from "./ui/CheckboxField.tsx";
 import {loginSchema} from "../validation/auth/loginSchema.ts";
 import {z} from "zod";
 import {useLoginMutation} from "../apis/authApi.ts";
+import {GoogleAuthButton} from "./GoogleAuthButton.tsx";
 
 interface LoginFormProps {
     onSwitchToRegister: () => void;
@@ -46,6 +47,9 @@ export const LoginForm = ({
     const [rememberMe, setRememberMe] = useState(false);
     const [shakeKey, setShakeKey] = useState(0);
 
+    const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
+    const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState(false);
+
     // Перетворює помилки Zod у формат { [field]: message }, беручи першу помилку на поле
     const mapLoginZodErrors = (error: z.ZodError): Partial<LoginErrors> => {
         const mapped: Partial<LoginErrors> = {};
@@ -76,6 +80,7 @@ export const LoginForm = ({
     // Валідація форми через Zod та відправка запиту на авторизацію
     const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsEmailSubmitting(true);
         setSubmitError(null);
 
         const result = loginSchema.safeParse(formData);
@@ -87,6 +92,7 @@ export const LoginForm = ({
                 ...mapLoginZodErrors(result.error),
             });
             setShakeKey((prev) => prev + 1);
+            setIsEmailSubmitting(false);
             return;
         }
 
@@ -111,6 +117,7 @@ export const LoginForm = ({
             setShakeKey((prev) => prev + 1);
             return
         }
+        finally {setIsEmailSubmitting(false);}
     };
 
     return (
@@ -119,16 +126,8 @@ export const LoginForm = ({
                 Увійти до особистого кабінету
             </h2>
 
-            {/* Болванка для входу через Google */}
-            <button
-                type="button"
-                onClick={() => {
-                    // TODO: логіка входу через Google
-                }}
-                className="mt-6 flex h-11 w-full cursor-pointer items-center justify-center rounded-full border bg-white px-5 text-sm transition hover:bg-[#F3F1EC]"
-            >
-                Увійти через Google
-            </button>
+             {/*Вхід через Google*/}
+            <GoogleAuthButton onSuccessClose={onSuccess} setIsEmailSubmitting={setIsEmailSubmitting} isEmailSubmitting={isEmailSubmitting} isGoogleLoggingIn={isGoogleLoggingIn} setIsGoogleLoggingIn={setIsGoogleLoggingIn} />
 
             <div className="my-3 text-center text-sm text-gray-700">або</div>
 
@@ -164,16 +163,17 @@ export const LoginForm = ({
                 />
 
                 {/* Кнопка відновлення пароля */}
-                <div className="mt-2">
+                <div className="mt-2 text-xs">
                     <button
                         type="button"
+                        disabled={isGoogleLoggingIn || isEmailSubmitting}
                         onClick={() => {
                             if (onForgotPassword) {
                                 onForgotPassword();
                             }
                             // TODO: відкриття відновлення пароля
                         }}
-                        className="cursor-pointer text-xs text-gray-600 hover:text-gray-800 hover:underline"
+                        className={`text-gray-600 transition ${!isGoogleLoggingIn && !isEmailSubmitting && "cursor-pointer hover:underline hover:text-gray-800"}`}
                     >
                         Забули пароль?
                     </button>
@@ -194,8 +194,8 @@ export const LoginForm = ({
                 {/* Кнопка сабміту зі станом завантаження */}
                 <button
                     type="submit"
-                    disabled={isLoading}
-                    className={`mt-5 flex h-11 w-full items-center justify-center rounded-full bg-olive px-5 text-sm font-medium text-white transition ${!isLoading && "cursor-pointer hover:bg-olive-light"}`}
+                    disabled={isLoading || isGoogleLoggingIn}
+                    className={`mt-5 flex h-11 w-full items-center justify-center rounded-full bg-olive px-5 text-sm font-medium text-white transition ${!isLoading && !isGoogleLoggingIn && "cursor-pointer hover:bg-olive-light"} disabled:opacity-70`}
                 >
                     {isLoading && (
                         <span
@@ -203,7 +203,7 @@ export const LoginForm = ({
                             className="h-4 w-4 me-2 animate-spin rounded-full border-2 border-white/30 border-t-white"
                         />
                     )}
-                    <span>{isLoading ? "Входимо..." : "Увійти"}</span>
+                    <span>{isLoading ? "Вхід..." : "Увійти"}</span>
                 </button>
 
                 {/* Чекбокс запам'ятовування сесії */}
@@ -215,12 +215,13 @@ export const LoginForm = ({
                 />
 
                 {/* Перемикання на багатоетапну реєстрацію */}
-                <p className="mt-6 text-center text-xs font-medium">
+                <p className="mt-6 text-center text-xs">
                     Немає облікового запису?{" "}
                     <button
                         type="button"
+                        disabled={isGoogleLoggingIn || isEmailSubmitting}
                         onClick={onSwitchToRegister}
-                        className="cursor-pointer text-gray-600 transition hover:text-gray-800 hover:underline"
+                        className={`text-gray-600 transition ${!isGoogleLoggingIn && !isEmailSubmitting && "cursor-pointer hover:underline hover:text-gray-800"}`}
                     >
                         Зареєструватися
                     </button>

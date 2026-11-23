@@ -71,7 +71,7 @@ export const AuthModal = () => {
                     type="button"
                     onClick={closeModal}
                     aria-label="Закрити"
-                    className="absolute right-4 top-4 px-2 py-1 text-sm text-gray-500 transition hover:text-gray-800 hover:cursor-pointer"
+                    className="absolute select-none right-4 top-4 px-2 py-1 text-sm text-gray-500 transition hover:text-gray-800 hover:cursor-pointer"
                 >
                     ✕
                 </button>
