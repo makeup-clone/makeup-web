@@ -2,6 +2,7 @@ import {type MouseEvent, useEffect, useRef} from "react";
 import { useAuthModal } from "../../hooks/useAuthModal.ts";
 import {LoginForm} from "../LoginForm.tsx";
 import {RegisterFlow} from "../RegisterFlow.tsx";
+import {ForgotPasswordForm} from "../ForgonPasswordForm.tsx";
 
 export const AuthModal = () => {
     // Стан модалки та дії керування нею з хука авторизації
@@ -79,6 +80,7 @@ export const AuthModal = () => {
                 {mode === "login" && (
                     <LoginForm
                         onSwitchToRegister={() => setMode("register")}
+                        onForgotPassword={() => setMode("forgot-password")}
                         onSuccess={handleAuthComplete}
                     />
                 )}
@@ -87,6 +89,12 @@ export const AuthModal = () => {
                     <RegisterFlow
                         onSwitchToLogin={() => setMode("login")}
                         onComplete={handleAuthComplete}
+                    />
+                )}
+
+                {mode === "forgot-password" && (
+                    <ForgotPasswordForm
+                        onBackToLogin={() => setMode("login")}
                     />
                 )}
             </div>

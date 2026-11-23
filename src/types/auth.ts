@@ -1,1 +1,1 @@
-export type AuthModalMode = "login" | "register" | null;
+export type AuthModalMode = "login" | "register" | "forgot-password" |null;

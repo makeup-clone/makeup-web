@@ -220,7 +220,7 @@ export const LoginForm = ({
                     <button
                         type="button"
                         onClick={onSwitchToRegister}
-                        className="cursor-pointer text-gray-600 transition hover:text-gray-800"
+                        className="cursor-pointer text-gray-600 transition hover:text-gray-800 hover:underline"
                     >
                         Зареєструватися
                     </button>

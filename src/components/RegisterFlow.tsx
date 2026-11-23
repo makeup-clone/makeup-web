@@ -518,7 +518,7 @@ export const RegisterFlow = ({
                         <button
                             type="button"
                             onClick={onSwitchToLogin}
-                            className="text-gray-600 transition hover:text-gray-800 hover:cursor-pointer"
+                            className="text-gray-600 transition hover:text-gray-800 cursor-pointer  hover:underline"
                         >
                             Увійти
                         </button>
