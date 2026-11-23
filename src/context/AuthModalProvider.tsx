@@ -1,7 +1,7 @@
 import {type ReactNode, useCallback, useState} from "react";
 import type {AuthModalMode} from "../types/auth.ts";
 import {useNavigate} from "react-router";
-import {AuthModalContext} from "./AuthModalContext.tsx";
+import {AuthModalContext} from "./AuthModalContext.ts";
 import type {IAuthModalOptions} from "../interfaces/IAuthModalOptions.ts";
 
 // Провайдер керує станом модалки авторизації/реєстрації та редиректом після успіху

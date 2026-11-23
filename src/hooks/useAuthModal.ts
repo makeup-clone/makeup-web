@@ -1,5 +1,5 @@
 import {useContext} from "react";
-import {AuthModalContext} from "../context/AuthModalContext.tsx";
+import {AuthModalContext} from "../context/AuthModalContext.ts";
 
 export const useAuthModal = () => {
     const ctx = useContext(AuthModalContext);
