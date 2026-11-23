@@ -7,15 +7,17 @@ import {ProfileMenu} from "./ProfileMenu.tsx";
 import shoppingSrc from "../assets/shopping.svg";
 import heartSrc from "../assets/heart.svg";
 import profileSrc from "../assets/profile.svg";
+import {useRef} from "react";
 
 const UserActions = () => {
     const { openLogin } = useAuthModal();
     const { isAuthenticated } = useAuth();
     const { toggleMenu } = useProfileMenu();
+    const btnContainer = useRef<HTMLDivElement | null>(null);
 
     const btns = [
         { key: '1',label: <div>
-                <img src={profileSrc} draggable={false} alt="profile"/>
+                <img src={profileSrc} draggable={false} className="select-none" alt="profile"/>
             </div>,
             onClick: () => {
                 if (isAuthenticated)
@@ -25,12 +27,12 @@ const UserActions = () => {
             }
         },
         { key: '2',label: <div>
-                <img src={heartSrc} draggable={false} alt="heart"/>
+                <img src={heartSrc} draggable={false} className="select-none" alt="heart"/>
             </div> },
         { key: '3',label: <div>
-                <img src={shoppingSrc} draggable={false} alt="shopping"/>
+                <img src={shoppingSrc} draggable={false} className="select-none" alt="shopping"/>
             </div> },
-        { key: '4',label: <Heart size='40'/> },
+        { key: '4',label: <Heart size='35'/> },
     ]
 
     return (
@@ -38,11 +40,11 @@ const UserActions = () => {
             <div className={"flex justify-end items-center space-x-4 w-full relative"}>
                 {btns.map((btn) => (
                     btn.key === "1" ? (
-                        <div key={btn.key} className="relative flex items-center">
+                        <div ref={btnContainer} key={btn.key} className="relative flex items-center">
                             <UserActionBtn onClick={btn.onClick}>
                                 {btn.label}
                             </UserActionBtn>
-                            <ProfileMenu/>
+                            <ProfileMenu ref={btnContainer}/>
                         </div>
                     ) : (
                         <UserActionBtn key={btn.key} onClick={btn.onClick}>
