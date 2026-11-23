@@ -1,9 +1,12 @@
 import UserActionBtn from "./ui/UserActionBtn.tsx";
-import { BadgeInfoIcon, ShoppingCart, User, Bell } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import {useAuthModal} from "../hooks/useAuthModal.ts";
 import {useAuth} from "../hooks/useAuth.ts";
 import {useProfileMenu} from "../hooks/useProfileMenu.ts";
 import {ProfileMenu} from "./ProfileMenu.tsx";
+import shoppingSrc from "../assets/shopping.svg";
+import heartSrc from "../assets/heart.svg";
+import profileSrc from "../assets/profile.svg";
 
 const UserActions = () => {
     const { openLogin } = useAuthModal();
@@ -11,17 +14,24 @@ const UserActions = () => {
     const { toggleMenu } = useProfileMenu();
 
     const btns = [
-        { key: '1',label: <User className={'text-white'}/>, onClick: () => {
+        { key: '1',label: <div>
+                <img src={profileSrc} draggable={false} alt="profile"/>
+            </div>,
+            onClick: () => {
                 if (isAuthenticated)
                     toggleMenu();
                 else
                     openLogin();
             }
         },
-        { key: '2',label: <BadgeInfoIcon className={'text-white'}/> },
-        { key: '3',label: <Bell className={'text-white'}/> },
-        { key: '4',label: <ShoppingCart className={'text-white'}/> },
-    ].reverse();
+        { key: '2',label: <div>
+                <img src={heartSrc} draggable={false} alt="heart"/>
+            </div> },
+        { key: '3',label: <div>
+                <img src={shoppingSrc} draggable={false} alt="shopping"/>
+            </div> },
+        { key: '4',label: <Heart size='40'/> },
+    ]
 
     return (
         <>
@@ -32,7 +42,7 @@ const UserActions = () => {
                             <UserActionBtn onClick={btn.onClick}>
                                 {btn.label}
                             </UserActionBtn>
-                            <ProfileMenu />
+                            <ProfileMenu/>
                         </div>
                     ) : (
                         <UserActionBtn key={btn.key} onClick={btn.onClick}>

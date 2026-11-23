@@ -7,6 +7,7 @@ interface AuthModalContextValue {
     isOpen: boolean;
     openLogin: (options?: IAuthModalOptions) => void;
     openRegister: (options?: IAuthModalOptions) => void;
+    openForgotPassword: (options?: IAuthModalOptions) => void;
     closeModal: () => void;
     setMode: (mode: Exclude<AuthModalMode, null>) => void;
     authSuccess: () => void;
