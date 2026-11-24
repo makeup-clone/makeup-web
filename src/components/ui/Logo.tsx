@@ -6,7 +6,7 @@ const Logo = () => {
         <>
             <div className={"flex justify-start items-center hover:cursor-pointer"}>
                 <Link to={"/"}>
-                    <img src={logoSrc} className={'max-h-14 max-w-[200px]'} draggable={false} alt="logo" />
+                    <img src={logoSrc} className={'max-h-14 max-w-50 select-none'} draggable={false} alt="logo" />
                 </Link>
             </div>
         </>

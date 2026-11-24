@@ -14,8 +14,8 @@ const NavItem = ({to, children, className}: NavItemProps) => {
                 className={({isActive}) =>
                     `p-2 text-sm font-medium transition-colors ${className} ${
                         isActive
-                            ? 'text-gray-700'
-                            : 'text-gray-900 hover:text-gray-700'
+                            ? 'text-gray-600'
+                            : 'text-gray-900 hover:text-gray-600'
                     }`
                 }
             >

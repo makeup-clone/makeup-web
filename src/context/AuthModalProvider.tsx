@@ -25,6 +25,12 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
         setMode("register");
     }, []);
 
+    // Відкриває модалку в режимі відновлення пароля та зберігає опціональний шлях редиректу
+    const openForgotPassword = useCallback((options?: IAuthModalOptions ) => {
+        setRedirectTo(options?.redirectTo ?? null);
+        setMode("forgot-password");
+    }, []);
+
     // Закриває модалку і скидає збережений шлях редиректу
     const closeModal = useCallback(() => {
         setMode(null);
@@ -48,6 +54,7 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
             isOpen: mode !== null,
             openLogin,
             openRegister,
+            openForgotPassword,
             closeModal,
             setMode,
             authSuccess,
