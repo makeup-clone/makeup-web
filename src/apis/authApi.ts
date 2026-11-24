@@ -2,6 +2,7 @@
 import type {ILoginRequest} from "../interfaces/IAuth/ILoginRequest.ts";
 import type {IProfile} from "../interfaces/IAuth/IProfile.ts";
 import {baseApi} from "./baseApi.ts";
+import type {IGoogleLoginRequest} from "../interfaces/IAuth/IGoogleLoginRequest.ts";
 
 export const authApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
@@ -17,6 +18,15 @@ export const authApi = baseApi.injectEndpoints({
         login: build.mutation<void, ILoginRequest>({
             query: (body) => ({
                 url: 'auth/login',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Auth'],
+        }),
+
+        googleLogin: build.mutation<void, IGoogleLoginRequest>({
+            query: (body) => ({
+                url: 'auth/googleLogin',
                 method: 'POST',
                 body,
             }),
@@ -39,6 +49,7 @@ export const authApi = baseApi.injectEndpoints({
 });
 
 export const {
+    useGoogleLoginMutation,
     useRegisterMutation,
     useLoginMutation,
     useLogoutMutation,
