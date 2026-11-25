@@ -29,7 +29,7 @@ interface ErrorsRegisterFormData {
 
 interface RegisterFlowProps {
     onSwitchToLogin: () => void;
-    onComplete: () => void;
+    onSuccess: () => void;
 }
 
 const INITIAL_DATA: RegisterFormData = {
@@ -52,7 +52,7 @@ const INITIAL_ERRORS_DATA: ErrorsRegisterFormData = {
 
 export const RegisterFlow = ({
                                  onSwitchToLogin,
-                                 onComplete,
+                                 onSuccess,
                              }: RegisterFlowProps) => {
     // Мутація реєстрації та стан серверної помилки
     const [register, { isLoading }] = useRegisterMutation();
@@ -211,13 +211,9 @@ export const RegisterFlow = ({
         payload.append("password", formData.password);
         payload.append("passwordConfirm", formData.confirmPassword);
 
-        // console.log("Register payload:", payload);
         try {
             await register(payload).unwrap();
-            onComplete?.();
         } catch (err) {
-            // console.error("REGISTER ERROR:", err);
-
             const data = (
                 err as { data?: { message?: string | string[]; error?: string } }
             )?.data;
@@ -501,7 +497,7 @@ export const RegisterFlow = ({
                 ) : (
                     <button
                         type="button"
-                        onClick={onComplete}
+                        onClick={onSuccess}
                         className="flex h-11 w-full cursor-pointer items-center justify-center rounded-full bg-olive px-5 text-sm font-medium text-white transition hover:bg-olive-light"
                     >
                         На головну

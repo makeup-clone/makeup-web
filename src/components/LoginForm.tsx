@@ -8,7 +8,6 @@ import {GoogleAuthButton} from "./GoogleAuthButton.tsx";
 
 interface LoginFormProps {
     onSwitchToRegister: () => void;
-    onSuccess: () => void;
     onForgotPassword?: () => void;
 }
 
@@ -34,7 +33,6 @@ const INITIAL_LOGIN_ERRORS: LoginErrors = {
 
 export const LoginForm = ({
                               onSwitchToRegister,
-                              onSuccess,
                               onForgotPassword,
                           }: LoginFormProps) => {
     // Мутація входу та стан серверної помилки (невірні дані / мережа / інше)
@@ -104,8 +102,6 @@ export const LoginForm = ({
                 email: result.data.email,
                 password: result.data.password,
             }).unwrap();
-
-            onSuccess?.();
         } catch (err) {
 
             const data = (err as { data?: { message?: string | string[]; error?: string } })?.data;
@@ -120,6 +116,7 @@ export const LoginForm = ({
         finally {setIsEmailSubmitting(false);}
     };
 
+
     return (
         <div>
             <h2 className="text-center text-xl font-medium tracking-tight">
@@ -127,7 +124,7 @@ export const LoginForm = ({
             </h2>
 
              {/*Вхід через Google*/}
-            <GoogleAuthButton onSuccessClose={onSuccess} setIsEmailSubmitting={setIsEmailSubmitting} isEmailSubmitting={isEmailSubmitting} isGoogleLoggingIn={isGoogleLoggingIn} setIsGoogleLoggingIn={setIsGoogleLoggingIn} />
+            <GoogleAuthButton setIsEmailSubmitting={setIsEmailSubmitting} isEmailSubmitting={isEmailSubmitting} isGoogleLoggingIn={isGoogleLoggingIn} setIsGoogleLoggingIn={setIsGoogleLoggingIn} />
 
             <div className="my-3 text-center text-sm text-gray-700">або</div>
 
