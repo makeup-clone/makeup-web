@@ -72,7 +72,7 @@ export const AuthModal = () => {
         >
             {/* Контейнер картки авторизації/реєстрації */}
             <div
-                className="relative flex min-h-135 w-full max-w-110 flex-col bg-white px-10 py-9 shadow-sm"
+                className="relative flex overflow-y-auto scrollbar-none h-137.5 w-full max-w-110 flex-col bg-white px-10 py-9 shadow-sm"
             >
                 {/* Кнопка закриття модалки */}
                 <button
