@@ -3,12 +3,11 @@ import { useAuth } from "../hooks/useAuth";
 import {useAuthModal} from "../hooks/useAuthModal.ts";
 import {useEffect} from "react";
 
-// Захищений маршрут від неавторизованих коритсувачів, щоб той не міг перейти до профілю через шлях.
+// Захищений маршрут від неавторизованих користувачів, щоб той не міг перейти до профілю через шлях.
 export const PrivateRoute = () => {
     const { isAuthenticated, isLoading } = useAuth();
-    const location = useLocation();
     const { openLogin } = useAuthModal();
-    const targetPath = `${location.pathname}${location.search}`
+    const targetPath = `${useLocation().pathname}${useLocation().search}`
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -27,7 +26,7 @@ export const PrivateRoute = () => {
     return <Outlet />;
 };
 
-// Захищений маршрут від неавторизованих коритсувачів і тих хто НЕ містить роль - Адмін
+// Захищений маршрут від неавторизованих користувачів і тих хто НЕ містить роль - Адмін
 export const AdminRoute = () => {
     const { isAuthenticated, isLoading, isAdmin } = useAuth();
     const location = useLocation();
@@ -55,7 +54,7 @@ export const AdminRoute = () => {
     return <Outlet />;
 };
 
-// Захищений маршрут від авторизованих коритсувачів, щоб той не міг перейти на шлях для логіну чи реєстрації.
+// Захищений маршрут від авторизованих користувачів, щоб той не міг перейти на шлях для логіну чи реєстрації.
 export const GuestRoute = () => {
     const { isAuthenticated, isLoading } = useAuth();
 

@@ -3,14 +3,22 @@ import { useAuthModal } from "../../hooks/useAuthModal.ts";
 import {LoginForm} from "../LoginForm.tsx";
 import {RegisterFlow} from "../RegisterFlow.tsx";
 import {ForgotPasswordForm} from "../ForgonPasswordForm.tsx";
+import {useAuth} from "../../hooks/useAuth.ts";
 
 export const AuthModal = () => {
     // Стан модалки та дії керування нею з хука авторизації
     const { mode, isOpen, closeModal, setMode, authSuccess } = useAuthModal();
+    const { isAuthenticated, isLoading } = useAuth();
 
     // Ref на темний фон та прапорець, чи натискання почалося саме на фоні (щоб не закривати модалку при drag-виділенні тексту зсередини)
     const backdropRef = useRef<HTMLDivElement | null>(null);
     const mouseDownOnBackdropRef = useRef(false);
+
+    useEffect(() => {
+        if (isOpen && !isLoading && isAuthenticated && mode !== 'register') {
+            authSuccess();
+        }
+    }, [isOpen, isLoading, isAuthenticated, authSuccess, mode]);
 
     // Закриваємо модалку по Escape, коли вона відкрита
     useEffect(() => {
@@ -64,7 +72,7 @@ export const AuthModal = () => {
         >
             {/* Контейнер картки авторизації/реєстрації */}
             <div
-                className="relative flex min-h-[540px] w-full max-w-[440px] flex-col bg-white px-10 py-9 shadow-sm"
+                className="relative flex overflow-y-auto scrollbar-none h-137.5 w-full max-w-110 flex-col bg-white px-10 py-9 shadow-sm"
             >
                 {/* Кнопка закриття модалки */}
                 <button
@@ -81,14 +89,13 @@ export const AuthModal = () => {
                     <LoginForm
                         onSwitchToRegister={() => setMode("register")}
                         onForgotPassword={() => setMode("forgot-password")}
-                        onSuccess={handleAuthComplete}
                     />
                 )}
 
                 {mode === "register" && (
                     <RegisterFlow
                         onSwitchToLogin={() => setMode("login")}
-                        onComplete={handleAuthComplete}
+                        onSuccess={handleAuthComplete}
                     />
                 )}
 

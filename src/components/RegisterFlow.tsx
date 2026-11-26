@@ -29,7 +29,7 @@ interface ErrorsRegisterFormData {
 
 interface RegisterFlowProps {
     onSwitchToLogin: () => void;
-    onComplete: () => void;
+    onSuccess: () => void;
 }
 
 const INITIAL_DATA: RegisterFormData = {
@@ -52,7 +52,7 @@ const INITIAL_ERRORS_DATA: ErrorsRegisterFormData = {
 
 export const RegisterFlow = ({
                                  onSwitchToLogin,
-                                 onComplete,
+                                 onSuccess,
                              }: RegisterFlowProps) => {
     // Мутація реєстрації та стан серверної помилки
     const [register, { isLoading }] = useRegisterMutation();
@@ -103,7 +103,7 @@ export const RegisterFlow = ({
         setFormData((prev) => ({...prev, [field]: value}));
     };
 
-    // Перемикає крок і скидає попередню серверу помилку
+    // Перемикає крок і скидає попередню серверну помилку
     const handleSetStep = (handleStep:RegisterStep) => {
         setSubmitError(null);
         setStep(handleStep);
@@ -211,13 +211,9 @@ export const RegisterFlow = ({
         payload.append("password", formData.password);
         payload.append("passwordConfirm", formData.confirmPassword);
 
-        // console.log("Register payload:", payload);
         try {
             await register(payload).unwrap();
-            onComplete?.();
         } catch (err) {
-            // console.error("REGISTER ERROR:", err);
-
             const data = (
                 err as { data?: { message?: string | string[]; error?: string } }
             )?.data;
@@ -353,7 +349,7 @@ export const RegisterFlow = ({
                         <form id="register-step-3" onSubmit={handleNextStep} noValidate className="mt-6 flex flex-col">
                             <div className="flex flex-col gap-3.5">
                                 <CheckboxField
-                                    label="Я погоджуюсь з Умовами використання та Політикою конфіденційності"
+                                    label="Я погоджуюсь з Умовами використання та Політикою конфіденційності *"
                                     checked={acceptTerms}
                                     onChange={(e) => {
                                         setAcceptTerms(e.target.checked);
@@ -364,7 +360,7 @@ export const RegisterFlow = ({
                                 />
 
                                 <CheckboxField
-                                    label="Я погоджуюсь на обробку персональної інформації"
+                                    label="Я погоджуюсь на обробку персональної інформації *"
                                     checked={acceptPersonalData}
                                     onChange={(e) => {
                                         setAcceptPersonalData(e.target.checked);
@@ -381,6 +377,8 @@ export const RegisterFlow = ({
                                         setAcceptMarketing(e.target.checked)
                                     }
                                 />
+
+                                <p>* - обов&apos;язкові пункти</p>
                             </div>
                         </form>
                     </div>
@@ -389,41 +387,43 @@ export const RegisterFlow = ({
                 {/* Крок 4: Перевірка введених даних перед сабмітом */}
                 {step === 4 && (
                     <div>
-                        <h2 className="text-center text-xl font-medium tracking-tight text-[#1A1A18]">
+                        <h2 className="text-center text-xl font-medium tracking-tight">
                             Перевірте дані
                         </h2>
 
-                        <div className="mt-6 space-y-4 rounded-lg bg-[#F3F1EC] p-4 text-sm text-[#1A1A18]">
-                            <div className="flex items-start justify-between gap-2 border-b border-black/10 pb-3">
+                        <div className="mt-6 space-y-4 rounded-lg p-4 text-sm">
+                            <div className="flex items-center justify-between gap-2 border-b border-gray-700 pb-3">
                                 <div>
-                                    <p className="text-xs text-gray-500">Особисті дані</p>
-                                    <p className="mt-0.5 font-medium">
-                                        {formData.firstName} {formData.lastName}
-                                    </p>
-                                    <p className="text-xs text-gray-700">{formData.email}</p>
+                                    <p className="mb-1 text-xs">Особисті дані</p>
+                                    <div>
+                                        {/*<p className="text-xs m-0 text-gray-600">Прізвище ім&apos;я</p>*/}
+                                        <p className="text-[15px]">{formData.firstName} {formData.lastName}</p>
+                                        {/*<p className="text-xs text-gray-600">Електронна пошта</p>*/}
+                                        <p className="text-[15px]">{formData.email}</p>
+                                    </div>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => handleSetStep(1)}
-                                    className="cursor-pointer text-xs text-gray-600 underline hover:text-gray-900"
+                                    className="cursor-pointer text-xs font-semibold hover:text-gray-700 hover:underline"
                                 >
                                     Змінити
                                 </button>
                             </div>
 
-                            <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center justify-between gap-3">
                                 <div>
-                                    <p className="text-xs text-gray-500">Умови та згоди</p>
-                                    <ul className="mt-0.5 text-xs font-medium">
-                                        <li className={`${!acceptTerms && "text-red-700"}`}>{acceptTerms ? "· Умови прийнято" : " · Умови не прийнято"}</li>
-                                        <li className={`${!acceptPersonalData && "text-red-700"}`}>{acceptPersonalData ? " · Обробка персональних данних прийнято" : " · Обробка персональних данних не прийнято"}</li>
-                                        <li className={`${!acceptMarketing && "text-red-700"}`}>{acceptMarketing ? " · Отримання новин прийнято" : " · Отримання новин не прийнято"}</li>
+                                    <p className="mb-1 text-xs">Згоди з умовами</p>
+                                    <ul className="mt-2 text-[15px] font-medium">
+                                        <li className={`mb-1 ${!acceptTerms && "text-red-700"}`}><span className="me-1">·</span> Умови використання</li>
+                                        <li className={`mb-1 ${!acceptPersonalData && "text-red-700"}`}><span className="me-1">·</span> Обробка персональної інформації</li>
+                                        <li className={`${!acceptMarketing && "text-red-700"}`}><span className="me-1">·</span> Отримання новин</li>
                                     </ul>
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => handleSetStep(3)}
-                                    className="cursor-pointer text-xs text-gray-600 underline hover:text-gray-900"
+                                    onClick={() => handleSetStep(1)}
+                                    className="cursor-pointer text-xs font-semibold hover:text-gray-700 hover:underline"
                                 >
                                     Змінити
                                 </button>
@@ -501,7 +501,7 @@ export const RegisterFlow = ({
                 ) : (
                     <button
                         type="button"
-                        onClick={onComplete}
+                        onClick={onSuccess}
                         className="flex h-11 w-full cursor-pointer items-center justify-center rounded-full bg-olive px-5 text-sm font-medium text-white transition hover:bg-olive-light"
                     >
                         На головну
