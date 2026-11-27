@@ -4,5 +4,7 @@ export interface IProfile {
     firstName: string;
     lastName: string;
     image: string;
+    createdAt: string;
     roles: string[];
+    providers: string[];
 }
