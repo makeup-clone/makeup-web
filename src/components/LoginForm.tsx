@@ -101,6 +101,7 @@ export const LoginForm = ({
             await login({
                 email: result.data.email,
                 password: result.data.password,
+                rememberMe,
             }).unwrap();
         } catch (err) {
 
@@ -124,7 +125,7 @@ export const LoginForm = ({
             </h2>
 
              {/*Вхід через Google*/}
-            <GoogleAuthButton setIsEmailSubmitting={setIsEmailSubmitting} isEmailSubmitting={isEmailSubmitting} isGoogleLoggingIn={isGoogleLoggingIn} setIsGoogleLoggingIn={setIsGoogleLoggingIn} />
+            <GoogleAuthButton rememberMe={rememberMe} isEmailSubmitting={isEmailSubmitting} isGoogleLoggingIn={isGoogleLoggingIn} setIsGoogleLoggingIn={setIsGoogleLoggingIn} />
 
             <div className="my-3 text-center text-sm text-gray-700">або</div>
 

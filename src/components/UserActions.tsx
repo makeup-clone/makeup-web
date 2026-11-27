@@ -7,9 +7,6 @@ import {useRef} from "react";
 import heart3Icon from "../assets/heart3-01.svg";
 import profile3Icon from "../assets/profile3-01.svg";
 import shopping3Icon from "../assets/shopping3-01.svg";
-import heartIcon from "../assets/heart.svg";
-import profileIcon from "../assets/profile.svg";
-import shoppingIcon from "../assets/shopping.svg";
 
 const UserActions = () => {
     const { openLogin } = useAuthModal();
@@ -28,34 +25,14 @@ const UserActions = () => {
                     openLogin();
             }
         },
-        { key: '2',label: <div>
-                <img src={profileIcon} draggable={false} className="w-8 h-8 shrink-0" alt="profile"/>
-            </div>,
-            onClick: () => {
-                if (isAuthenticated)
-                    toggleMenu();
-                else
-                    openLogin();
-            }
-        },
         {
             key: '3', label: <div>
                 <img src={heart3Icon} draggable={false} className="w-9 h-9 shrink-0" alt="heart3"/>
             </div>
         },
         {
-            key: '4', label: <div>
-                <img src={heartIcon} draggable={false} className="w-9 h-9 shrink-0" alt="heart"/>
-            </div>
-        },
-        {
             key: '5', label: <div>
                 <img src={shopping3Icon} draggable={false} className="w-9 h-9 shrink-0" alt="shopping3"/>
-            </div>
-        },
-        {
-            key: '6', label: <div>
-                <img src={shoppingIcon} draggable={false} className="w-9 h-9 shrink-0" alt="shopping"/>
             </div>
         },
     ]

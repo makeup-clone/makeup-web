@@ -12,6 +12,7 @@ import {
     ShieldCheck,
     User,
 } from "lucide-react";
+import {formatCreatedAt} from "../utils/formatCreatedAt.ts";
 
 // Заміни на свої реальні хуки авторизації та модалки
 // import { useAuth } from "../context/AuthContext";
@@ -24,7 +25,8 @@ export interface UserProfileData {
     name?: string;
     email: string;
     phone?: string;
-    role?: string;
+    roles?: string[];
+    providers?: string[];
     isEmailVerified?: boolean;
     createdAt?: string;
 }
@@ -202,7 +204,7 @@ const Profile = ({
                         <ShieldCheck className="h-4 w-4" strokeWidth={1.6} />
                     </div>
                     <p className="mt-3 text-2xl font-medium text-gray-900">
-                        {user.role ?? "Користувач"}
+                        {user.roles?.includes("admin") ? "Адміністратор" : "Користувач"}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
                         Стандартний доступ до кабінету
@@ -265,7 +267,7 @@ const Profile = ({
                                 Дата реєстрації
                             </dt>
                             <dd className="mt-1.5 text-sm font-medium text-gray-900">
-                                {user.createdAt || "Дані не передано"}
+                                {formatCreatedAt(user.createdAt) || "Дані не передано"}
                             </dd>
                         </div>
                     </dl>
@@ -292,9 +294,17 @@ const Profile = ({
                                 <span className="font-medium text-gray-800">
                                     Google акаунт
                                 </span>
-                                <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-500">
-                                    Не прив&apos;язано
-                                </span>
+                                {user?.providers?.includes("Google") ? (
+                                    <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-green-500">
+                                        Прив&apos;язано
+                                    </span>
+                                ) :
+                                    <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-500">
+                                        Не прив&apos;язано
+                                    </span>
+                                }
+
+
                             </div>
                         </div>
                     </div>
