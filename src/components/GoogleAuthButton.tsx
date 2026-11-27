@@ -3,13 +3,13 @@ import {useGoogleLoginMutation} from "../apis/authApi.ts";
 import googleIcon from "../assets/googleIcon.svg";
 
 interface GoogleAuthButtonProps {
-    setIsEmailSubmitting?: (isEmailSubmitting: boolean) => void;
+    rememberMe?: boolean;
     isEmailSubmitting?: boolean;
     setIsGoogleLoggingIn?: (isGoogleLoggingIn: boolean) => void;
     isGoogleLoggingIn?: boolean;
 }
 
-export const GoogleAuthButton = ({ isEmailSubmitting, setIsGoogleLoggingIn, isGoogleLoggingIn }: GoogleAuthButtonProps) => {
+export const GoogleAuthButton = ({ isEmailSubmitting, setIsGoogleLoggingIn, isGoogleLoggingIn, rememberMe }: GoogleAuthButtonProps) => {
     const [googleLogin, { isLoading }] = useGoogleLoginMutation ();
 
     const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
@@ -17,7 +17,10 @@ export const GoogleAuthButton = ({ isEmailSubmitting, setIsGoogleLoggingIn, isGo
         if (!idToken) return;
 
         try {
-            await googleLogin({ googleIdToken: idToken }).unwrap();
+            await googleLogin({
+                googleIdToken: idToken,
+                rememberMe
+            }).unwrap();
         } catch (error) {
             console.error("Помилка входу через Google:", error);
         }

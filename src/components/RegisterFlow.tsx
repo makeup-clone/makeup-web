@@ -210,6 +210,7 @@ export const RegisterFlow = ({
         payload.append("email", formData.email);
         payload.append("password", formData.password);
         payload.append("passwordConfirm", formData.confirmPassword);
+        payload.append("rememberMe", String(rememberMe));
 
         try {
             await register(payload).unwrap();

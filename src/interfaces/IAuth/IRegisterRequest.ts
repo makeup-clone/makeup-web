@@ -5,4 +5,5 @@ export interface IRegisterRequest {
     password: string;
     passwordConfirm: string;
     image: File | null;
+    rememberMe?: boolean;
 }
